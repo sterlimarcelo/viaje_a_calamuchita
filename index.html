@@ -1,74 +1,60 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Caravana — Santa Fe ➜ Calamuchita (Light, PRO)</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Caravana — Santa Fe ➜ Calamuchita (Firebase)</title>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Marker Cluster -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <!-- MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
-<style>
-  :root{
-    --bg:#f5f7fb;
-    --panel:#ffffff;
-    --muted:#6b7280;
-    --accent:#0d47a1;
-    --danger:#d32f2f;
-    --card:#ffffff;
-  }
-  html,body{height:100%;margin:0;background:var(--bg);color:#0f1720;font-family:Inter,Segoe UI,Arial;}
-  header{background:linear-gradient(90deg,var(--accent),#08306b);padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between}
-  header h1{margin:0;font-size:18px}
-  .layout{display:grid;grid-template-columns:360px 1fr 360px;gap:12px;padding:12px;height:calc(100vh - 64px);box-sizing:border-box}
-  .panel{background:var(--panel);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(15,23,36,0.08);overflow:auto}
-  label{display:block;font-weight:600;color:#0f1720;margin-top:8px}
-  input,select,button,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef6;background:transparent;color:inherit;box-sizing:border-box}
-  input::placeholder{color:var(--muted)}
-  .btn{background:var(--accent);color:white;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:700}
-  .btn-ghost{background:transparent;border:1px solid rgba(15,23,36,0.06)}
-  .btn-danger{background:var(--danger);color:white}
-  #map{width:100%;height:100%;min-height:420px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.04)}
-  .vehicle-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;border:1px solid rgba(15,23,36,0.04);margin-bottom:8px}
-  .vehicle-main{flex:1}
-  .status-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle}
-  .s-ok{background:#16a34a}
-  .s-delay{background:#f59e0b}
-  .s-break{background:#ef4444}
-  .s-panic{background:#ff5252;box-shadow:0 0 8px rgba(255,82,82,0.12)}
-  .hint{font-size:12px;color:var(--muted);margin-top:8px}
-  .panic-banner{position:fixed;left:50%;transform:translateX(-50%);top:84px;z-index:9999;background:var(--danger);color:white;padding:12px 18px;border-radius:10px;display:none;font-weight:800;box-shadow:0 10px 30px rgba(211,47,47,0.12)}
-  .small{font-size:12px;color:var(--muted)}
-  .admin-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .link-button{background:transparent;border:none;color:#0d47a1;cursor:pointer;text-decoration:underline;padding:0}
-  @media(max-width:1024px){.layout{grid-template-columns:1fr;grid-auto-rows:auto;height:auto} .panel{max-height:360px}}
-</style>
+  <style>
+    :root{
+      --bg:#f5f7fb; --panel:#ffffff; --muted:#6b7280; --accent:#0d47a1; --danger:#d32f2f;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial;background:var(--bg);color:#0f1720}
+    header{background:linear-gradient(90deg,var(--accent),#08306b);padding:12px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center}
+    header h1{margin:0;font-size:18px}
+    .layout{display:grid;grid-template-columns:360px 1fr 360px;gap:12px;padding:12px;height:calc(100vh - 56px);box-sizing:border-box}
+    .panel{background:var(--panel);border-radius:10px;padding:12px;box-shadow:0 6px 20px rgba(15,23,36,0.06);overflow:auto}
+    label{display:block;margin-top:8px;font-weight:600;color:#0f1720}
+    input,select,button,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef6;background:transparent;box-sizing:border-box}
+    input::placeholder{color:var(--muted)}
+    .btn{background:var(--accent);color:white;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:700}
+    .btn-ghost{background:transparent;border:1px solid rgba(15,23,36,0.06)}
+    .btn-danger{background:var(--danger);color:white}
+    #map{width:100%;height:100%;min-height:420px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.04)}
+    .vehicle-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;border:1px solid rgba(15,23,36,0.04);margin-bottom:8px}
+    .status-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle}
+    .s-ok{background:#16a34a} .s-delay{background:#f59e0b} .s-break{background:#ef4444} .s-panic{background:#ff5252}
+    .small{font-size:12px;color:var(--muted)}
+    .panic-banner{position:fixed;left:50%;transform:translateX(-50%);top:84px;z-index:9999;background:var(--danger);color:white;padding:12px 18px;border-radius:10px;display:none;font-weight:800}
+    @media(max-width:1024px){.layout{grid-template-columns:1fr;grid-auto-rows:auto;height:auto}}
+  </style>
 </head>
 <body>
 
 <header>
   <div>
     <h1>Caravana — Santa Fe ➜ Calamuchita</h1>
-    <div class="small">Modo local — Sin servidor</div>
+    <div class="small">Conectado a Firebase — colección: <strong>vehiculos</strong></div>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
-    <div class="small" id="statusLabel">Modo: Local</div>
-    <button class="btn btn-ghost" id="exportPdfBtn">Exportar PDF</button>
-    <button class="btn btn-ghost" id="adminToggleBtn">Mostrar Admin</button>
+    <button class="btn btn-ghost" id="exportBtn">Exportar</button>
+    <button class="btn btn-ghost" id="adminToggle">Admin</button>
   </div>
 </header>
 
 <div class="panic-banner" id="panicBanner">⚠️ ALERTA DE PÁNICO</div>
 
 <div class="layout">
-
-  <!-- LEFT panel: registro & lista -->
+  <!-- Left: registro y lista -->
   <div class="panel">
     <h3>Registrar vehículo</h3>
     <label>Nombre del conductor</label>
@@ -81,378 +67,423 @@
     <input id="telefono" placeholder="+54 9 ...">
 
     <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn" id="registerBtn">Registrar y compartir posición</button>
-      <button class="btn btn-ghost" id="assignSelfBtn">Asignar a este dispositivo</button>
+      <button class="btn" id="btnRegister">Registrar y publicar</button>
+      <button class="btn btn-ghost" id="btnAssign">Asignar a este dispositivo</button>
     </div>
-    <div class="hint">Al registrar desde un celular, la app asignará este vehículo al dispositivo y actualizará su GPS automáticamente.</div>
 
-    <hr style="border:none;border-top:1px solid rgba(15,23,36,0.06);margin:12px 0">
+    <hr style="margin:12px 0">
 
     <h4>Vehículos registrados <span id="count" class="small"></span></h4>
-    <div id="listContainer"></div>
+    <div id="list" style="margin-top:8px"></div>
 
-    <div class="admin-actions" id="adminActions" style="display:none;margin-top:10px">
-      <button class="btn-ghost" id="loadSampleBtn">Cargar ejemplo</button>
-      <button class="btn-ghost" id="removeSamplesBtn">Eliminar ejemplos</button>
-      <button class="btn-ghost" id="clearAllBtn">Borrar todo</button>
-    </div>
-
-    <div style="margin-top:12px">
-      <label>Modo administrador (clave)</label>
-      <input id="adminKey" placeholder="Clave admin">
+    <div id="adminPanel" style="display:none;margin-top:10px">
+      <hr>
+      <label>Clave admin</label>
+      <input id="adminKey" placeholder="clave admin">
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn btn-ghost" id="adminLoginBtn">Entrar</button>
-        <button class="btn btn-ghost" id="adminLogoutBtn" style="display:none">Salir Admin</button>
+        <button class="btn btn-ghost" id="loginAdmin">Entrar</button>
+        <button class="btn btn-ghost" id="logoutAdmin" style="display:none">Salir</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-ghost" id="btnLoadSample">Cargar ejemplo</button>
+        <button class="btn-ghost" id="btnRemoveSamples">Eliminar ejemplos</button>
+        <button class="btn-ghost" id="btnClearAll">Borrar todo</button>
       </div>
     </div>
-
   </div>
 
-  <!-- CENTER: MAP -->
+  <!-- Center: mapa -->
   <div class="panel" style="padding:10px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="font-weight:700">Mapa</div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost" id="centerAllBtn">Centrar vehículos</button>
-        <button class="btn btn-ghost" id="toggleRouteBtn">Mostrar ruta</button>
+        <button class="btn btn-ghost" id="centerAll">Centrar</button>
+        <button class="btn btn-ghost" id="toggleRoute">Ruta</button>
       </div>
     </div>
     <div id="map"></div>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn btn-danger" id="panicBtn">🚨 PÁNICO</button>
-      <button class="btn btn-ghost" id="testAlarmBtn">Probar alarma</button>
+      <button class="btn btn-danger" id="btnPanic">🚨 PÁNICO</button>
+      <button class="btn btn-ghost" id="testAlarm">Probar alarma</button>
     </div>
   </div>
 
-  <!-- RIGHT: chat, historial, opciones -->
+  <!-- Right: chat e historial -->
   <div class="panel">
-    <h3>Chat interno</h3>
-    <div id="chatMessages" style="height:36vh;overflow:auto;border-radius:8px;padding:8px;background:#fbfdff"></div>
+    <h3>Chat</h3>
+    <div id="chat" style="height:36vh;overflow:auto;padding:8px;background:#fbfdff;border-radius:6px;"></div>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <input id="chatInput" placeholder="Mensaje para la caravana...">
-      <button class="btn" id="sendChatBtn">Enviar</button>
+      <input id="chatInput" placeholder="Mensaje...">
+      <button class="btn" id="sendChat">Enviar</button>
     </div>
 
-    <hr style="border:none;border-top:1px solid rgba(15,23,36,0.06);margin:12px 0">
+    <hr style="margin:12px 0">
 
-    <h4>Historial de un vehículo</h4>
+    <h4>Historial</h4>
     <select id="histSel"><option value="">Seleccionar vehículo</option></select>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn btn-ghost" id="showHistBtn">Mostrar historial</button>
-      <button class="btn btn-ghost" id="hideHistBtn">Ocultar historial</button>
+      <button class="btn btn-ghost" id="showHist">Mostrar historial</button>
+      <button class="btn btn-ghost" id="hideHist">Ocultar historial</button>
     </div>
-
-    <div class="hint" style="margin-top:10px">Esta versión funciona 100% en local. Para sincronización real utilice la versión con servidor o Firebase.</div>
   </div>
 </div>
 
-<script>
-/* CONFIG */
-const CONFIG = {
-  adminPassword: "admin123",
-  ownerUpdateIntervalMs: 10000,
-  routeCoords: [
-    [-31.6333,-60.7000],
-    [-32.5,-61.5],
-    [-33.3,-62.7],
-    [-31.9,-63.4],
-    [-31.9275,-64.4881]
-  ]
-};
+<!-- Firebase SDKs (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-/* STATE */
-let vehiculos = []; // {id,nombre,patente,marca,telefono,estado,lat,lng,history,sample}
-let markers = {};
+<script>
+/* =========================
+   CONFIG: Pegue aquí su firebaseConfig
+   ========================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyD1BXa7NyxcUnbeslMI0WTlafZbYYmZZdU",
+  authDomain: "viaje-a-calamuchita.firebaseapp.com",
+  projectId: "viaje-a-calamuchita",
+  storageBucket: "viaje-a-calamuchita.firebasestorage.app",
+  messagingSenderId: "739270013476",
+  appId: "1:739270013476:web:26109553c13261a2cd1eb1"
+};
+/* ========================= */
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const COL = 'vehiculos'; // colección recomendada
+
+/* APP STATE */
+let map, cluster;
+let markers = {}; // id -> marker
 let polylines = {};
-let cluster;
-let map, routeLine;
+let myVehicleId = null;
+let myPatente = null;
+let myName = null;
 let chatMessages = [];
 let adminMode = false;
-const STORAGE_KEY = 'caravana_v3_light';
+const ADMIN_PASSWORD = 'admin123'; // cambiar si desea
 
-/* INIT MAP (light — OSM) */
+/* INIT MAP - light mode (OSM) */
 function initMap(){
   map = L.map('map', {preferCanvas:true}).setView([-31.63,-60.70],7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:''}).addTo(map);
   cluster = L.markerClusterGroup();
   map.addLayer(cluster);
-  routeLine = L.polyline(CONFIG.routeCoords, {color:'#1976d2', weight:4, opacity:0.9, dashArray:'8 6'});
 }
 initMap();
 
-/* UTIL */
-function uid(){ return 'v'+Date.now() + Math.random().toString(36,8); }
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({vehiculos,chatMessages})); }
-function load(){ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ try{ const d = JSON.parse(raw); vehiculos = d.vehiculos || []; chatMessages = d.chatMessages || []; }catch(e){ console.warn(e); vehiculos=[]; chatMessages=[]; } } }
-load();
+/* ICONS */
+function createIconCircle(color, size=14){
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};box-shadow:0 2px 8px rgba(0,0,0,0.12);border:2px solid white"></div>`,
+    iconSize: [size,size],
+    iconAnchor: [size/2,size/2]
+  });
+}
+const ICON_SELF = createIconCircle('#2b8de6', 18); // globito azul propio
+const ICON_NORMAL = createIconCircle('#16a34a', 14); // verde
+const ICON_PANIC = createIconCircle('#ef4444', 18); // rojo
+
+/* UTIL: escape */
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
 /* RENDER LIST */
-function renderList(){
-  const container = document.getElementById('listContainer');
-  container.innerHTML = '';
-  document.getElementById('count').textContent = `(${vehiculos.length})`;
-  vehiculos.forEach(v=>{
-    const el = document.createElement('div'); el.className='vehicle-item';
-    const main = document.createElement('div'); main.className='vehicle-main';
-    const statusClass = v.estado==='ok' ? 's-ok' : (v.estado==='delay' ? 's-delay' : (v.estado==='panic'?'s-panic':'s-break'));
-    main.innerHTML = `<div style="font-weight:700">${v.nombre} <span style="color:var(--muted);font-weight:600">(${v.patente})</span></div>
-                      <div class="small" style="margin-top:6px">${v.marca || ''} · ${v.telefono || '—'}</div>
-                      <div style="margin-top:6px"><span class="status-dot ${statusClass}"></span><strong>${v.estado.toUpperCase()}</strong></div>`;
-    el.appendChild(main);
-
+function renderList(data){
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  document.getElementById('count').textContent = `(${data.length})`;
+  data.forEach(v=>{
+    const div = document.createElement('div'); div.className='vehicle-item';
+    const left = document.createElement('div');
+    left.innerHTML = `<div style="font-weight:700">${escapeHtml(v.nombre)} <span class="small">(${escapeHtml(v.patente)})</span></div>
+                      <div class="small">${escapeHtml(v.marca)} · ${escapeHtml(v.telefono)}</div>
+                      <div style="margin-top:6px"><span class="status-dot ${v.estado==='panic'?'s-panic':v.estado==='ok'?'s-ok':v.estado==='delay'?'s-delay':'s-break'}"></span><strong>${v.estado.toUpperCase()}</strong></div>`;
     const actions = document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
-    const btnCenter = document.createElement('button'); btnCenter.className='btn-ghost'; btnCenter.textContent='Centrar'; btnCenter.onclick = ()=>centerOn(v.id);
-    const btnState = document.createElement('button'); btnState.className='btn-ghost'; btnState.textContent='Cambiar estado'; btnState.onclick = ()=>cycleState(v.id);
-    const btnPanic = document.createElement('button'); btnPanic.className='btn-danger'; btnPanic.textContent='Pánico'; btnPanic.onclick = ()=>triggerPanic(v.id);
-    actions.appendChild(btnCenter); actions.appendChild(btnState); actions.appendChild(btnPanic);
-
-    const delBtn = document.createElement('button'); delBtn.className='btn-ghost'; delBtn.textContent='Eliminar'; delBtn.style.display = adminMode ? 'block' : 'none';
-    delBtn.onclick = ()=>{ if(confirm('Eliminar vehículo?')) removeVehicle(v.id); };
-    actions.appendChild(delBtn);
-
-    el.appendChild(actions);
-    container.appendChild(el);
+    const btnCenter = document.createElement('button'); btnCenter.className='btn-ghost'; btnCenter.textContent='Centrar'; btnCenter.onclick = ()=>{ if(v.lat && v.lng){ map.setView([v.lat,v.lng],14); } else alert('Sin posición'); };
+    const btnPanic = document.createElement('button'); btnPanic.className='btn-danger'; btnPanic.textContent='Pánico'; btnPanic.onclick = ()=>panicVehicle(v.id);
+    actions.appendChild(btnCenter); actions.appendChild(btnPanic);
+    if(adminMode){
+      const del = document.createElement('button'); del.className='btn-ghost'; del.textContent='Eliminar'; del.onclick = ()=>deleteVehicle(v.id);
+      actions.appendChild(del);
+    }
+    div.appendChild(left); div.appendChild(actions);
+    list.appendChild(div);
   });
 }
 
-/* MARKERS */
-function updateAllMarkers(){
-  cluster.clearLayers(); markers={};
-  vehiculos.forEach(v=>{
-    if(v.lat==null||v.lng==null) return;
-    const iconHtml = `<div style="background:#ffffff;padding:6px;border-radius:8px;border:1px solid #e6eef6;min-width:72px;text-align:center">
-                        <div style="font-weight:800">${v.patente}</div>
-                        <div style="font-size:12px;color:#6b7280">${v.nombre}</div>
-                      </div>`;
-    const icon = L.divIcon({html:iconHtml,className:''});
-    const marker = L.marker([v.lat,v.lng],{icon});
-    marker.bindPopup(popupContent(v));
-    marker.on('click', ()=>{ document.getElementById('histSel').value = v.id; });
-    markers[v.id]=marker;
-    cluster.addLayer(marker);
-  });
+/* MARKERS: manage */
+function setMarker(v){
+  // remove old
+  if(markers[v.id]) cluster.removeLayer(markers[v.id]);
+  if(!v.lat || !v.lng) return;
+  const isMine = (v.id === myVehicleId);
+  const icon = v.estado === 'panic' ? ICON_PANIC : (isMine ? ICON_SELF : ICON_NORMAL);
+  const marker = L.marker([v.lat,v.lng], {icon});
+  marker.bindPopup(`<strong>${escapeHtml(v.nombre)}</strong><br>${escapeHtml(v.patente)}<br>${escapeHtml(v.marca)}<br>Estado: <strong>${v.estado}</strong>`);
+  markers[v.id] = marker;
+  cluster.addLayer(marker);
 }
 
-/* POPUP */
-function popupContent(v){
-  return `<div style="min-width:200px">
-    <b>${v.nombre}</b> (${v.patente})<br>
-    ${v.marca || ''}<br>
-    Tel: ${v.telefono || '—'}<br>
-    Estado: <strong>${v.estado}</strong><br>
-    <div style="margin-top:8px"><button onclick="centerOn('${v.id}')" class="btn-ghost">Centrar</button>
-    <button onclick="toggleHistoryFor('${v.id}')" class="btn-ghost">Historial</button></div>
-  </div>`;
+/* POLYLINES for history */
+function drawHistory(v){
+  if(polylines[v.id]){ map.removeLayer(polylines[v.id]); delete polylines[v.id]; return; }
+  if(!v.history || v.history.length<2) return alert('No hay historial suficiente');
+  const coords = v.history.map(p=>[p.lat,p.lng]);
+  polylines[v.id] = L.polyline(coords, {color:'#f97316', weight:4, opacity:0.9}).addTo(map);
+  map.fitBounds(polylines[v.id].getBounds().pad(0.4));
 }
 
-/* REGISTER */
-document.getElementById('registerBtn').addEventListener('click', ()=> {
+/* FIRESTORE: real-time listener */
+let unsubscribe = null;
+function startListener(){
+  if(unsubscribe) unsubscribe();
+  unsubscribe = db.collection(COL).onSnapshot(snapshot=>{
+    const list = [];
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      data.id = doc.id;
+      // ensure history array exists
+      data.history = data.history || [];
+      list.push(data);
+    });
+    // render list and markers
+    renderList(list);
+    // clear markers
+    cluster.clearLayers();
+    markers = {};
+    list.forEach(setMarker);
+    updateHistSelect(list);
+  }, err=>console.error('Firestore listen error', err));
+}
+startListener();
+
+/* REGISTER VEHICLE */
+document.getElementById('btnRegister').addEventListener('click', async ()=>{
   const nombre = document.getElementById('nombre').value.trim();
   const patente = document.getElementById('patente').value.trim();
   const marca = document.getElementById('marca').value.trim();
   const telefono = document.getElementById('telefono').value.trim();
-  if(!nombre||!patente){ alert('Nombre y patente son obligatorios'); return; }
-  const id = uid();
-  const veh = {id,nombre,patente,marca,telefono,estado:'ok',lat:null,lng:null,history:[],sample:false};
-  vehiculos.push(veh);
-  save(); renderList(); updateHistSelect();
-  getCurrentPosition().then(pos=>{
-    veh.lat=pos.coords.latitude; veh.lng=pos.coords.longitude;
-    veh.history.push({lat:veh.lat,lng:veh.lng,t:Date.now()});
-    save(); updateAllMarkers();
-    localStorage.setItem('caravana_owner_id', veh.id);
-    localStorage.setItem('caravana_owner_patente', veh.patente);
-    localStorage.setItem('caravana_owner_name', veh.nombre);
-    alert('Vehículo registrado y asignado a este dispositivo. Se actualizará su posición automáticamente.');
-  }).catch(err=>{
-    save(); updateAllMarkers();
-    alert('Vehículo registrado (sin coordenadas). Permita ubicación en el navegador para completar.');
-  });
-  document.getElementById('nombre').value=''; document.getElementById('patente').value=''; document.getElementById('marca').value=''; document.getElementById('telefono').value='';
+  if(!nombre || !patente) return alert('Nombre y patente son obligatorios');
+  // create Firestore doc
+  try{
+    const docRef = await db.collection(COL).add({
+      nombre, patente, marca, telefono, estado:'ok', lat:null, lng:null, history:[], createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // assign this vehicle to this device
+    myVehicleId = docRef.id; myPatente = patente; myName = nombre;
+    localStorage.setItem('caravana_owner_id', myVehicleId);
+    localStorage.setItem('caravana_owner_patente', myPatente);
+    localStorage.setItem('caravana_owner_name', myName);
+    alert('Vehículo creado y publicado');
+    // try to capture position immediately
+    updateMyPositionOnce();
+  }catch(e){ console.error(e); alert('Error al crear vehículo: '+e.message); }
 });
 
-/* ASSIGN SELF */
-document.getElementById('assignSelfBtn').addEventListener('click', ()=>{
-  const last = vehiculos[vehiculos.length-1];
-  if(!last){ alert('No hay vehículos registrados en este dispositivo'); return; }
-  localStorage.setItem('caravana_owner_id', last.id);
-  localStorage.setItem('caravana_owner_patente', last.patente);
-  localStorage.setItem('caravana_owner_name', last.nombre);
-  alert('Asignado a este dispositivo: ' + last.nombre + ' ('+ last.patente +')');
+/* ASSIGN button (assign last registered vehicle) */
+document.getElementById('btnAssign').addEventListener('click', ()=>{
+  const id = localStorage.getItem('caravana_owner_id');
+  if(id){ alert('Ya hay un vehículo asignado a este dispositivo'); return; }
+  // simple: get last vehicle created by this browser? fallback: ask user to click the vehicle and assign (not implemented)
+  alert('Función automática: registre un vehículo y se asignará automáticamente.');
 });
 
-/* GET CURRENT POSITION */
-function getCurrentPosition(options={enableHighAccuracy:true, timeout:10000, maximumAge:5000}){
-  return new Promise((res,rej)=>{
-    if(!navigator.geolocation) return rej(new Error('Geolocalización no soportada'));
-    navigator.geolocation.getCurrentPosition(res,rej,options);
-  });
+/* UPDATE OWN POSITION (write to Firestore) */
+async function updateMyPosition(lat,lng){
+  if(!myVehicleId) return;
+  try{
+    const docRef = db.collection(COL).doc(myVehicleId);
+    // add to history (limit to recent 200 points locally)
+    await docRef.update({
+      lat, lng,
+      lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
+      history: firebase.firestore.FieldValue.arrayUnion({lat,lng,t:Date.now()})
+    });
+  }catch(e){ console.error('updateMyPosition error', e); }
 }
 
-/* OWNER AUTO-UPDATE */
+/* try to get position and update once */
+async function updateMyPositionOnce(){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    await updateMyPosition(lat,lng);
+  }, err=>console.warn('geoloc error', err), {enableHighAccuracy:true, timeout:10000});
+}
+
+/* periodic auto update (every 6s) */
 setInterval(async ()=>{
   const ownerId = localStorage.getItem('caravana_owner_id');
-  if(!ownerId) return;
+  if(ownerId) myVehicleId = ownerId;
+  if(!myVehicleId) return;
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    await updateMyPosition(lat,lng);
+  }, err=>{/* ignore on deny */}, {enableHighAccuracy:true, maximumAge:2000, timeout:8000});
+}, 6000);
+
+/* DELETE vehicle (admin) */
+async function deleteVehicle(id){
+  if(!confirm('Eliminar vehículo?')) return;
   try{
-    const pos = await getCurrentPosition({enableHighAccuracy:true, timeout:8000, maximumAge:2000});
-    const v = vehiculos.find(x=>x.id===ownerId);
-    if(v){
-      v.lat = pos.coords.latitude; v.lng = pos.coords.longitude;
-      v.history = v.history || [];
-      v.history.push({lat:v.lat,lng:v.lng,t:Date.now()});
-      save(); updateAllMarkers();
+    await db.collection(COL).doc(id).delete();
+    alert('Eliminado');
+  }catch(e){ console.error(e); alert('Error al eliminar: '+e.message); }
+}
+
+/* PANIC: mark vehicle in panic state */
+async function panicVehicle(id){
+  try{
+    await db.collection(COL).doc(id).update({ estado:'panic', panicAt: firebase.firestore.FieldValue.serverTimestamp() });
+    showPanic(`${id} en PÁNICO`);
+  }catch(e){ console.error(e); alert('Error pánico: '+e.message); }
+}
+
+/* GLOBAL PANIC button: create temporary panic marker from this device */
+document.getElementById('btnPanic').addEventListener('click', async ()=>{
+  if(!navigator.geolocation) return alert('GPS no disponible');
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    // create temporary doc to show panic OR update my vehicle
+    if(myVehicleId){
+      await db.collection(COL).doc(myVehicleId).update({ estado:'panic', lat, lng, panicAt: firebase.firestore.FieldValue.serverTimestamp() });
+    } else {
+      // create a temporary panic doc
+      await db.collection(COL).add({ nombre:'PÁNICO', patente:'!!', marca:'', telefono:'', estado:'panic', lat, lng, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
-  }catch(e){ /* ignore */ }
-}, CONFIG.ownerUpdateIntervalMs);
+    showPanic('Pánico enviado');
+  }, err=>alert('No se pudo obtener ubicación: '+err.message), {enableHighAccuracy:true});
+});
 
-/* CENTER */
-function centerOn(id){
-  const v = vehiculos.find(x=>x.id===id);
-  if(!v || v.lat==null) return alert('Ubicación no disponible');
-  map.setView([v.lat,v.lng],14);
-  if(markers[id]) markers[id].openPopup();
-}
-
-/* CYCLE STATE */
-function cycleState(id){
-  const v = vehiculos.find(x=>x.id===id);
-  if(!v) return;
-  if(v.estado==='ok') v.estado='delay';
-  else if(v.estado==='delay') v.estado='break';
-  else v.estado='ok';
-  save(); renderList(); updateAllMarkers();
-}
-
-/* PANIC: global and per-vehicle */
+/* show panic banner + sound */
 function showPanic(text){
-  const banner = document.getElementById('panicBanner');
-  banner.textContent = text || '⚠️ ALERTA DE PÁNICO';
-  banner.style.display = 'block';
-  playAlarm(15000);
-  setTimeout(()=>{ banner.style.display='none'; }, 20000);
-  localStorage.setItem('caravana_panic', JSON.stringify({t:Date.now(), text}));
+  const b = document.getElementById('panicBanner'); b.textContent = text; b.style.display = 'block';
+  playAlarm(10000);
+  setTimeout(()=>{ b.style.display='none'; }, 18000);
 }
 
-document.getElementById('panicBtn').addEventListener('click', async ()=>{
-  try{
-    const pos = await getCurrentPosition();
-    const id = uid();
-    const veh = {id,nombre:'PÁNICO',patente:'!!',marca:'',telefono:'',estado:'panic',lat:pos.coords.latitude,lng:pos.coords.longitude,history:[],sample:false};
-    vehiculos.push(veh);
-    save(); renderList(); updateAllMarkers();
-    showPanic('Vehículo activó PÁNICO');
-  }catch(e){ alert('No se pudo obtener ubicación: ' + e.message); }
-});
-
-function triggerPanic(id){
-  const v = vehiculos.find(x=>x.id===id);
-  if(!v) return;
-  v.estado='panic';
-  save(); renderList(); updateAllMarkers();
-  showPanic(`${v.nombre} (${v.patente}) solicita asistencia`);
-  localStorage.setItem('caravana_panic', JSON.stringify({t:Date.now(), text:`${v.nombre} (${v.patente}) solicita asistencia`}));
-}
-
-/* listen panic events from other tabs */
-window.addEventListener('storage', (ev)=>{
-  if(ev.key === 'caravana_panic'){
-    try{
-      const info = JSON.parse(ev.newValue || '{}');
-      showPanic(info.text || '⚠️ ALERTA');
-    }catch(e){}
-  }
-});
-
-/* play alarm */
+/* audio alarm */
 function playAlarm(duration=8000){
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type='sawtooth'; o.frequency.value=440;
-    o.connect(g); g.connect(ctx.destination);
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime+0.1);
-    o.start();
-    setTimeout(()=>{ o.stop(); ctx.close(); }, duration);
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type='sawtooth'; o.frequency.value=440; o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.001, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime+0.1);
+    o.start(); setTimeout(()=>{ o.stop(); ctx.close(); }, duration);
   }catch(e){ console.warn('Audio error', e); }
 }
 
-/* CHAT (local) */
-function renderChat(){
-  const div = document.getElementById('chatMessages'); div.innerHTML='';
-  chatMessages.slice(-200).forEach(m=>{
-    const el = document.createElement('div');
-    el.style.padding='8px'; el.style.marginBottom='6px'; el.style.borderRadius='6px'; el.style.background='#ffffff';
-    el.innerHTML = `<strong style="color:#0d47a1">${m.from}</strong> <span class="small" style="margin-left:8px">${new Date(m.t).toLocaleTimeString()}</span><div style="margin-top:6px">${escapeHtml(m.txt)}</div>`;
-    div.appendChild(el);
-  });
-  div.scrollTop = div.scrollHeight;
-}
-document.getElementById('sendChatBtn').addEventListener('click', ()=>{
+/* CHAT: simple Firestore chat (collection 'chat') */
+document.getElementById('sendChat').addEventListener('click', async ()=>{
   const txt = document.getElementById('chatInput').value.trim(); if(!txt) return;
-  const from = localStorage.getItem('caravana_owner_name') || 'Anon';
-  chatMessages.push({from,txt,t:Date.now()}); save(); renderChat(); document.getElementById('chatInput').value='';
+  const from = localStorage.getItem('caravana_owner_name') || (myName || 'Anon');
+  await db.collection('chat').add({ from, txt, t: firebase.firestore.FieldValue.serverTimestamp() });
+  document.getElementById('chatInput').value = '';
+});
+db.collection('chat').orderBy('t').limitToLast(200).onSnapshot(snap=>{
+  const msgs = []; snap.forEach(d=> msgs.push(d.data())); const container = document.getElementById('chat'); container.innerHTML='';
+  msgs.forEach(m=>{ const el = document.createElement('div'); el.style.padding='6px'; el.style.marginBottom='6px'; el.style.background='#fbfdff'; el.innerHTML = `<strong style="color:${m.from===myName?'#0d47a1':'#0d1720'}">${escapeHtml(m.from)}</strong> <span class="small" style="margin-left:8px">${m.t?new Date(m.t.toMillis()).toLocaleTimeString():''}</span><div style="margin-top:6px">${escapeHtml(m.txt)}</div>`; container.appendChild(el); });
+  container.scrollTop = container.scrollHeight;
 });
 
-/* HISTORIAL */
-function updateHistSelect(){
+/* HISTORY select helper */
+function updateHistSelect(list){
   const sel = document.getElementById('histSel'); sel.innerHTML = '<option value="">Seleccionar vehículo</option>';
-  vehiculos.forEach(v=> sel.innerHTML += `<option value="${v.id}">${v.nombre} (${v.patente})</option>`);
+  list.forEach(v=> sel.innerHTML += `<option value="${v.id}">${escapeHtml(v.nombre)} (${escapeHtml(v.patente)})</option>`);
 }
-document.getElementById('showHistBtn').addEventListener('click', ()=>{ const id = document.getElementById('histSel').value; if(!id) return; toggleHistoryFor(id); });
-document.getElementById('hideHistBtn').addEventListener('click', ()=>{ for(const k in polylines){ map.removeLayer(polylines[k]); } polylines={}; });
+document.getElementById('showHist').addEventListener('click', async ()=>{
+  const id = document.getElementById('histSel').value; if(!id) return;
+  const doc = await db.collection(COL).doc(id).get(); if(!doc.exists) return alert('No existe');
+  const v = doc.data(); v.id = doc.id;
+  if(!v.history || v.history.length<2) return alert('Sin historial');
+  if(polylines[v.id]){ map.removeLayer(polylines[v.id]); delete polylines[v.id]; return; }
+  polylines[v.id] = L.polyline(v.history.map(p=>[p.lat,p.lng]), {color:'#f97316', weight:4}).addTo(map);
+  map.fitBounds(polylines[v.id].getBounds().pad(0.3));
+});
+document.getElementById('hideHist').addEventListener('click', ()=>{ for(const k in polylines){ map.removeLayer(polylines[k]); } polylines={}; });
 
-function toggleHistoryFor(id){
-  const v = vehiculos.find(x=>x.id===id);
-  if(!v || !v.history || v.history.length<2) return alert('No hay historial suficiente');
-  if(polylines[id]){ map.removeLayer(polylines[id]); delete polylines[id]; return; }
-  const coords = v.history.map(h=>[h.lat,h.lng]);
-  polylines[id] = L.polyline(coords,{color:'#f97316',weight:4,opacity:0.9}).addTo(map);
-  map.fitBounds(polylines[id].getBounds().pad(0.4));
-}
+/* ADMIN login */
+document.getElementById('loginAdmin').addEventListener('click', ()=> {
+  const key = document.getElementById('adminKey').value || '';
+  if(key === ADMIN_PASSWORD){
+    adminMode = true; document.getElementById('logoutAdmin').style.display='inline-block'; document.getElementById('loginAdmin').style.display='none';
+    document.getElementById('adminPanel').style.display='block'; alert('Admin ok');
+  } else alert('Clave incorrecta');
+});
+document.getElementById('logoutAdmin').addEventListener('click', ()=> {
+  adminMode = false; document.getElementById('logoutAdmin').style.display='none'; document.getElementById('loginAdmin').style.display='inline-block';
+  document.getElementById('adminPanel').style.display='none'; alert('Sesión admin cerrada');
+});
 
-/* ROUTE / CENTER */
-document.getElementById('toggleRouteBtn').addEventListener('click', ()=>{ if(map.hasLayer(routeLine)){ map.removeLayer(routeLine); } else { routeLine.addTo(map); map.fitBounds(routeLine.getBounds().pad(0.4)); } });
-document.getElementById('centerAllBtn').addEventListener('click', ()=>{ const pts = vehiculos.filter(v=>v.lat!=null).map(v=>[v.lat,v.lng]); if(pts.length===0) return alert('No hay posiciones disponibles'); map.fitBounds(L.latLngBounds(pts).pad(0.35)); });
+/* admin bulk actions */
+document.getElementById('btnLoadSample').addEventListener('click', async ()=>{
+  const samples = [
+    {nombre:'Juan Pérez',patente:'ABC123',marca:'Hilux',telefono:'+54 9 341 123',estado:'ok',lat:-31.6333,lng:-60.7,history:[]},
+    {nombre:'María López',patente:'XYZ987',marca:'Cronos',telefono:'+54 9 341 555',estado:'delay',lat:-32.5,lng:-61.5,history:[]}
+  ];
+  for(const s of samples) await db.collection(COL).add(s);
+});
+document.getElementById('btnRemoveSamples').addEventListener('click', async ()=>{
+  if(!adminMode) return alert('Acceso denegado');
+  const snap = await db.collection(COL).where('marca','in',['Hilux','Cronos']).get();
+  const batch = db.batch();
+  snap.forEach(d=> batch.delete(d.ref));
+  await batch.commit();
+  alert('Ejemplos eliminados');
+});
+document.getElementById('btnClearAll').addEventListener('click', async ()=>{
+  if(!adminMode) return alert('Acceso denegado');
+  if(!confirm('Borrar TODOS los vehículos?')) return;
+  const snap = await db.collection(COL).get();
+  const batch = db.batch();
+  snap.forEach(d=> batch.delete(d.ref));
+  await batch.commit();
+  alert('Todos eliminados');
+});
 
-/* LOAD / SAVE helpers */
-function updateAll(){ renderList(); updateAllMarkers(); renderChat(); updateHistSelect(); }
-updateAll();
+/* realtime listener for vehicles to update map/list */
+db.collection(COL).onSnapshot(snap=>{
+  const list = [];
+  snap.forEach(doc=> {
+    const d = doc.data(); d.id = doc.id; d.history = d.history || [];
+    list.push(d);
+  });
+  renderList(list);
+  // update markers
+  cluster.clearLayers(); markers={};
+  list.forEach(v=> setMarker(v));
+  updateHistSelect(list);
+});
 
-/* ADMIN */
-document.getElementById('adminLoginBtn').addEventListener('click', ()=>{ const key = document.getElementById('adminKey').value || ''; if(key === CONFIG.adminPassword){ adminMode=true; document.getElementById('adminActions').style.display='flex'; document.getElementById('adminLoginBtn').style.display='none'; document.getElementById('adminLogoutBtn').style.display='inline-block'; alert('Acceso administrador concedido'); renderList(); } else alert('Clave incorrecta'); });
-document.getElementById('adminLogoutBtn').addEventListener('click', ()=>{ adminMode=false; document.getElementById('adminActions').style.display='none'; document.getElementById('adminLoginBtn').style.display='inline-block'; document.getElementById('adminLogoutBtn').style.display='none'; renderList(); });
+/* export simple txt */
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const snap = await db.collection(COL).get();
+  const arr = [];
+  snap.forEach(d=> { const v = d.data(); arr.push(`${v.nombre} (${v.patente}) ${v.marca} ${v.telefono} ${v.estado}`); });
+  const blob = new Blob([arr.join('\n')], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='vehiculos.txt'; a.click();
+});
 
-document.getElementById('loadSampleBtn').addEventListener('click', ()=>{ const samples = [
-  {id:uid(),nombre:'Juan Pérez',patente:'ABC123',marca:'Hilux',telefono:'+54 9 341 123',estado:'ok',lat:-31.6333,lng:-60.7000,history:[{lat:-31.6333,lng:-60.7,t:Date.now()-3600000}],sample:true},
-  {id:uid(),nombre:'María López',patente:'XYZ987',marca:'Cronos',telefono:'+54 9 341 555',estado:'delay',lat:-32.5,lng:-61.5,history:[{lat:-32.5,lng:-61.5,t:Date.now()-1800000}],sample:true},
-  {id:uid(),nombre:'Carlos Díaz',patente:'DEF456',marca:'VW',telefono:'+54 9 341 888',estado:'break',lat:-33.3,lng:-62.7,history:[{lat:-33.3,lng:-62.7,t:Date.now()-7200000}],sample:true}
-]; vehiculos = vehiculos.concat(samples); save(); updateAll(); });
+/* center all */
+document.getElementById('centerAll').addEventListener('click', ()=>{
+  db.collection(COL).get().then(snap=>{
+    const pts = []; snap.forEach(d=> { const v=d.data(); if(v.lat && v.lng) pts.push([v.lat,v.lng]); });
+    if(pts.length===0) return alert('No hay posiciones');
+    map.fitBounds(L.latLngBounds(pts).pad(0.35));
+  });
+});
 
-document.getElementById('removeSamplesBtn').addEventListener('click', ()=>{ if(!adminMode) return alert('Acceso denegado'); vehiculos = vehiculos.filter(v=>!v.sample); save(); updateAll(); });
-document.getElementById('clearAllBtn').addEventListener('click', ()=>{ if(!adminMode) return alert('Acceso denegado'); if(confirm('Borrar TODOS los datos locales?')){ vehiculos=[]; chatMessages=[]; save(); updateAll(); localStorage.removeItem('caravana_owner_id'); localStorage.removeItem('caravana_owner_patente'); localStorage.removeItem('caravana_owner_name'); } });
+/* storage: store owner id when created */
+db.collection(COL).orderBy('createdAt', 'desc').limit(1).get().then(()=>{}).catch(()=>{});
 
-/* remove single vehicle */
-function removeVehicle(id){ if(!adminMode) return alert('Acceso denegado'); vehiculos = vehiculos.filter(v=>v.id!==id); save(); updateAll(); }
+/* listen to storage events to show panic from other tabs (optional fallback) */
+window.addEventListener('storage', ev=> {
+  if(ev.key === 'caravana_panic'){ try{ const info=JSON.parse(ev.newValue||'{}'); showPanic(info.text); }catch(e){} }
+});
 
-/* EXPORT simple TXT */
-document.getElementById('exportPdfBtn').addEventListener('click', ()=>{ const txt = 'Listado de vehículos:\n' + vehiculos.map((v,i)=>`${i+1}. ${v.nombre} (${v.patente}) - ${v.marca} - ${v.telefono} - ${v.estado}`).join('\n'); const b = new Blob([txt], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'caravana_listado.txt'; a.click(); });
+/* small helpers */
+function showPanicLocal(text){ localStorage.setItem('caravana_panic', JSON.stringify({t:Date.now(), text})); showPanic(text); }
 
-/* TEST ALARM */
-document.getElementById('testAlarmBtn').addEventListener('click', ()=>playAlarm(2000));
-
-/* periodic save */
-setInterval(()=>save(),5000);
-
-/* expose */
-window.centerOn = centerOn;
-window.toggleHistoryFor = toggleHistoryFor;
-window.triggerPanic = triggerPanic;
-
-/* helpers: escapeHtml, etc. */
-function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-
+/* end of file */
 </script>
 </body>
 </html>
