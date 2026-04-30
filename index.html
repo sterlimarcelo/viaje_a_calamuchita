@@ -16,9 +16,9 @@
         header { background: var(--blue); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
         .page { display: none; padding: 15px; padding-bottom: 80px; min-height: 100vh; box-sizing: border-box; }
         .active { display: block; }
-        #map { height: 65vh; width: 100%; border-radius: 0 0 15px 15px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        #map { height: 60vh; width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-red { background: var(--red); color: white; margin-top: 10px; }
@@ -26,29 +26,34 @@
         nav button { flex: 1; background: none; color: #666; border: none; padding: 12px; font-size: 0.75em; }
         nav button.active-nav { color: var(--blue); border-top: 3px solid var(--blue); }
         #modal-registro { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        .alerta-activa { background: var(--red) !important; color: white !important; padding: 20px; border-radius: 10px; position: fixed; top: 20%; left: 5%; width: 90%; z-index: 3000; text-align: center; box-shadow: 0 0 20px black; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
+<audio id="audioAlerta" loop>
+    <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
+</audio>
+
 <div id="modal-registro">
     <div class="card" style="width: 100%; max-width: 400px;">
         <h2 style="color: var(--blue)">Registro de Caravana</h2>
+        <input type="text" id="reg-grupo" placeholder="CÓDIGO DE GRUPO (Ej: MISION1)">
         <input type="text" id="reg-nombre" placeholder="Nombre y Apellido">
-        <input type="text" id="reg-vehiculo" placeholder="Modelo del Auto (ej: Corolla)">
+        <input type="text" id="reg-vehiculo" placeholder="Modelo del Auto">
         <input type="text" id="reg-patente" placeholder="Patente">
-        <input type="tel" id="reg-tel" placeholder="WhatsApp / Teléfono">
         <button class="btn-blue" onclick="guardarRegistro()">REGISTRARME Y ENTRAR</button>
     </div>
 </div>
 
-<header id="main-header" style="display:none">COMUNIDAD SAGRADA FAMILIA</header>
+<header id="main-header" style="display:none">CARAVANA: <span id="display-grupo"></span></header>
 
 <div class="content">
     <div id="p-mapa" class="page">
         <div id="map"></div>
-        <button class="btn-red" onclick="enviarAuxilio()">⚠️ EMERGENCIAS / AUXILIO</button>
+        <button class="btn-red" onclick="activarAlerta()">⚠️ EMERGENCIAS / AUXILIO</button>
     </div>
 
     <div id="p-pedidos" class="page">
@@ -57,7 +62,7 @@
 
     <div id="p-agenda" class="page">
         <div class="card">
-            <h3>📅 Agenda y Actividades</h3>
+            <h3>📅 Agenda</h3>
             <div id="tabla-agenda">Cargando...</div>
         </div>
     </div>
@@ -70,7 +75,6 @@
 </nav>
 
 <script>
-    // --- CONFIGURACIÓN ---
     const firebaseConfig = {
         apiKey: "AIzaSyCg4QiqLk_qj7RbJaLApadz4Fp94K2iiwY",
         authDomain: "caravana-parroquia.firebaseapp.com",
@@ -81,89 +85,109 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    // Icono de autito personalizado
+    let marcadores = {};
+    let alertaSound = document.getElementById("audioAlerta");
+
     const carIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/744/744465.png', // Icono de auto azul
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/744/744465.png',
         iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
+        iconAnchor: [16, 16]
     });
 
-    var map = L.map('map').setView([-31.50, -62.50], 7);
+    // Mapa centrado en Santa Fe, Argentina[cite: 1]
+    var map = L.map('map').setView([-31.6333, -60.7], 13);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    // --- REGISTRO ---
     if(localStorage.getItem("registrado")) {
-        document.getElementById("modal-registro").style.display = "none";
-        document.getElementById("main-header").style.display = "block";
-        document.getElementById("main-nav").style.display = "flex";
-        navTo('p-mapa', document.querySelector('nav button'));
-        iniciarRastreo();
-        cargarAgenda();
+        const user = JSON.parse(localStorage.getItem("datosUser"));
+        if(user && user.grupo) {
+            document.getElementById("modal-registro").style.display = "none";
+            document.getElementById("main-header").style.display = "block";
+            document.getElementById("main-nav").style.display = "flex";
+            document.getElementById("display-grupo").innerText = user.grupo;
+            navTo('p-mapa', document.querySelector('nav button'));
+            iniciarRastreo();
+            cargarAgenda();
+        } else {
+            localStorage.clear(); // Limpiar si los datos están incompletos
+        }
     }
 
     function guardarRegistro() {
-        const datos = {
+        const g = document.getElementById("reg-grupo").value.toUpperCase().trim();
+        const d = {
+            grupo: g,
             nombre: document.getElementById("reg-nombre").value,
             vehiculo: document.getElementById("reg-vehiculo").value,
-            patente: document.getElementById("reg-patente").value,
-            telefono: document.getElementById("reg-tel").value
+            patente: document.getElementById("reg-patente").value.toUpperCase().trim(),
+            alerta: false
         };
 
-        if(!datos.nombre || !datos.patente) return alert("Faltan datos importantes.");
+        if(!g || !d.nombre || !d.patente) return alert("Faltan datos.");
 
-        // Envío a Google Sheets (Asegúrate de tener el Apps Script desplegado)
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) });
         localStorage.setItem("registrado", "true");
-        localStorage.setItem("datosUser", JSON.stringify(datos));
+        localStorage.setItem("datosUser", JSON.stringify(d));
         location.reload();
     }
 
-    // --- RASTREO EN VIVO ---
     function iniciarRastreo() {
         const user = JSON.parse(localStorage.getItem("datosUser"));
-
         navigator.geolocation.watchPosition(pos => {
-            const { latitude, longitude } = pos.coords;
-            db.ref('viaje/' + user.patente).set({ 
-                lat: latitude, 
-                lng: longitude, 
+            db.ref(`grupos/${user.grupo}/miembros/${user.patente}`).update({ 
+                lat: pos.coords.latitude, 
+                lng: pos.coords.longitude, 
                 nombre: user.nombre,
-                vehiculo: user.vehiculo,
-                telefono: user.telefono
+                vehiculo: user.vehiculo
             });
         }, null, { enableHighAccuracy: true });
 
-        let marcadores = {};
-        db.ref('viaje').on('value', snap => {
+        db.ref(`grupos/${user.grupo}/miembros`).on('value', snap => {
             const list = snap.val();
             for(let id in list) {
                 const v = list[id];
-                const infoHtml = `<b>${v.nombre}</b><br>🚗 ${v.vehiculo}<br>🆔 ${id}<br>📱 ${v.telefono}`;
-                
                 if(marcadores[id]) {
-                    marcadores[id].setLatLng([v.lat, v.lng]).getPopup().setContent(infoHtml);
+                    marcadores[id].setLatLng([v.lat, v.lng]);
                 } else {
                     marcadores[id] = L.marker([v.lat, v.lng], {icon: carIcon}).addTo(map)
-                        .bindPopup(infoHtml);
+                        .bindPopup(`<b>${v.nombre}</b><br>${v.vehiculo}`);
+                }
+
+                if(v.alerta === true && id !== user.patente) {
+                    map.setView([v.lat, v.lng], 16);
+                    marcadores[id].openPopup();
+                    alertaSound.play();
+                    if(!document.getElementById("alerta-ui")) {
+                        const div = document.createElement("div");
+                        div.id = "alerta-ui";
+                        div.className = "alerta-activa";
+                        div.innerHTML = `<h3>⚠️ AUXILIO: ${v.nombre}</h3><button onclick="detenerAlertaLocal()">ENTENDIDO</button>`;
+                        document.body.appendChild(div);
+                    }
                 }
             }
         });
     }
 
+    function activarAlerta() {
+        const user = JSON.parse(localStorage.getItem("datosUser"));
+        db.ref(`grupos/${user.grupo}/miembros/${user.patente}`).update({ alerta: true });
+        setTimeout(() => db.ref(`grupos/${user.grupo}/miembros/${user.patente}`).update({ alerta: false }), 60000);
+    }
+
+    function detenerAlertaLocal() {
+        alertaSound.pause();
+        const el = document.getElementById("alerta-ui");
+        if(el) el.remove();
+    }
+
     function cargarAgenda() {
         fetch(SCRIPT_URL).then(res => res.json()).then(data => {
-            let html = "<table>";
-            data.forEach((row, index) => {
-                html += "<tr>";
-                row.forEach(cell => {
-                    html += index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
-                });
-                html += "</tr>";
+            let h = "<table>";
+            data.forEach((r, i) => {
+                h += "<tr>" + r.map(c => i===0 ? `<th>${c}</th>` : `<td>${c}</td>`).join("") + "</tr>";
             });
-            document.getElementById("tabla-agenda").innerHTML = html + "</table>";
+            document.getElementById("tabla-agenda").innerHTML = h + "</table>";
         });
     }
 
