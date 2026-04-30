@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caravana Sagrada Familia</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root { --blue: #1a237e; --red: #d32f2f; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: #f0f2f5; }
+        header { background: var(--blue); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
+        .page { display: none; padding: 15px; padding-bottom: 80px; min-height: 100vh; box-sizing: border-box; }
+        .active { display: block; }
+        #map { height: 65vh; width: 100%; border-radius: 0 0 15px 15px; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-red { background: var(--red); color: white; margin-top: 10px; }
+        nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
+        nav button { flex: 1; background: none; color: #666; border: none; padding: 12px; font-size: 0.75em; }
+        nav button.active-nav { color: var(--blue); border-top: 3px solid var(--blue); }
+        #modal-registro { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+<div id="modal-registro">
+    <div class="card" style="width: 100%; max-width: 400px;">
+        <h2 style="color: var(--blue)">Registro de Caravana</h2>
+        <input type="text" id="reg-nombre" placeholder="Nombre y Apellido">
+        <input type="text" id="reg-vehiculo" placeholder="Modelo del Auto (ej: Corolla)">
+        <input type="text" id="reg-patente" placeholder="Patente">
+        <input type="tel" id="reg-tel" placeholder="WhatsApp / Teléfono">
+        <button class="btn-blue" onclick="guardarRegistro()">REGISTRARME Y ENTRAR</button>
+    </div>
+</div>
+
+<header id="main-header" style="display:none">COMUNIDAD SAGRADA FAMILIA</header>
+
+<div class="content">
+    <div id="p-mapa" class="page">
+        <div id="map"></div>
+        <button class="btn-red" onclick="enviarAuxilio()">⚠️ EMERGENCIAS / AUXILIO</button>
+    </div>
+
+    <div id="p-pedidos" class="page">
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScFTpRBCZRhmGVKYvYqQQimw9TVCYkBalDoU4a_C93YX1m8Fg/viewform?usp=header" width="100%" height="700" frameborder="0">Cargando...</iframe>
+    </div>
+
+    <div id="p-agenda" class="page">
+        <div class="card">
+            <h3>📅 Agenda y Actividades</h3>
+            <div id="tabla-agenda">Cargando...</div>
+        </div>
+    </div>
+</div>
+
+<nav id="main-nav" style="display:none">
+    <button onclick="navTo('p-mapa', this)" class="active-nav">MAPA</button>
+    <button onclick="navTo('p-pedidos', this)">PEDIDOS</button>
+    <button onclick="navTo('p-agenda', this)">AGENDA</button>
+</nav>
+
+<script>
+    // --- CONFIGURACIÓN ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCg4QiqLk_qj7RbJaLApadz4Fp94K2iiwY",
+        authDomain: "caravana-parroquia.firebaseapp.com",
+        projectId: "caravana-parroquia",
+        databaseURL: "https://caravana-parroquia-default-rtdb.firebaseio.com"
+    };
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRZslbDHOcy7x9e4W1tL028j9vnTsRCAEQRQ7k9NmLsGUCDDwtj2fCUeqH4cxzgF0R/exec"; 
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    // Icono de autito personalizado
+    const carIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/744/744465.png', // Icono de auto azul
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+    });
+
+    var map = L.map('map').setView([-31.6, -64.4], 10);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+    // --- REGISTRO ---
+    if(localStorage.getItem("registrado")) {
+        document.getElementById("modal-registro").style.display = "none";
+        document.getElementById("main-header").style.display = "block";
+        document.getElementById("main-nav").style.display = "flex";
+        navTo('p-mapa', document.querySelector('nav button'));
+        iniciarRastreo();
+        cargarAgenda();
+    }
+
+    function guardarRegistro() {
+        const datos = {
+            nombre: document.getElementById("reg-nombre").value,
+            vehiculo: document.getElementById("reg-vehiculo").value,
+            patente: document.getElementById("reg-patente").value,
+            telefono: document.getElementById("reg-tel").value
+        };
+
+        if(!datos.nombre || !datos.patente) return alert("Faltan datos importantes.");
+
+        // Envío a Google Sheets (Asegúrate de tener el Apps Script desplegado)
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+
+        localStorage.setItem("registrado", "true");
+        localStorage.setItem("datosUser", JSON.stringify(datos));
+        location.reload();
+    }
+
+    // --- RASTREO EN VIVO ---
+    function iniciarRastreo() {
+        const user = JSON.parse(localStorage.getItem("datosUser"));
+
+        navigator.geolocation.watchPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            db.ref('viaje/' + user.patente).set({ 
+                lat: latitude, 
+                lng: longitude, 
+                nombre: user.nombre,
+                vehiculo: user.vehiculo,
+                telefono: user.telefono
+            });
+        }, null, { enableHighAccuracy: true });
+
+        let marcadores = {};
+        db.ref('viaje').on('value', snap => {
+            const list = snap.val();
+            for(let id in list) {
+                const v = list[id];
+                const infoHtml = `<b>${v.nombre}</b><br>🚗 ${v.vehiculo}<br>🆔 ${id}<br>📱 ${v.telefono}`;
+                
+                if(marcadores[id]) {
+                    marcadores[id].setLatLng([v.lat, v.lng]).getPopup().setContent(infoHtml);
+                } else {
+                    marcadores[id] = L.marker([v.lat, v.lng], {icon: carIcon}).addTo(map)
+                        .bindPopup(infoHtml);
+                }
+            }
+        });
+    }
+
+    function cargarAgenda() {
+        fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+            let html = "<table>";
+            data.forEach((row, index) => {
+                html += "<tr>";
+                row.forEach(cell => {
+                    html += index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
+                });
+                html += "</tr>";
+            });
+            document.getElementById("tabla-agenda").innerHTML = html + "</table>";
+        });
+    }
+
+    function navTo(id, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-nav'));
+        btn.classList.add('active-nav');
+        if(id === 'p-mapa') setTimeout(()=> map.invalidateSize(), 300);
+    }
+</script>
+</body>
+</html>
