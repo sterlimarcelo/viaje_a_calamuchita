@@ -75,6 +75,18 @@
         .map-container { position: relative; height: 100vh; width: 100%; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
+        /* --- FIRMA FOOTER --- */
+        .sidebar-footer {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            border-top: 1px solid var(--border);
+            background: var(--card-bg);
+            margin-top: auto; 
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
             .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 2px solid var(--border); }
@@ -240,6 +252,11 @@
                 
                 <button class="btn btn-outline" onclick="salirAdmin()">Cerrar Sesión Admin</button>
             </div>
+        </div>
+
+        <!-- FIRMA DEL CREADOR -->
+        <div class="sidebar-footer">
+            Desarrollado por Marcelo Sterli
         </div>
 
     </div>
