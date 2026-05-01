@@ -20,7 +20,6 @@
         body.dark-mode .tabs { background: #1e1e1e; border-bottom-color: #333; }
         body.dark-mode input, body.dark-mode select { background: #333; color: white; border-color: #555; }
         body.dark-mode .msg-other { background: #333; border-color: #444; }
-        /* Filtro oscuro para el mapa en modo noche */
         body.dark-mode .leaflet-layer, body.dark-mode .leaflet-control-zoom-in, body.dark-mode .leaflet-control-zoom-out, body.dark-mode .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
         body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s, color 0.3s; }
@@ -53,7 +52,6 @@
         .btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
         .btn-small { padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white; cursor: pointer; }
         
-        /* Botones Rápidos Admin */
         .btn-alerta { font-size: 0.8rem; padding: 10px; margin-bottom: 5px; background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; font-weight: bold; }
         
         .dato-transferencia { display: flex; justify-content: space-between; align-items: center; background: var(--light-blue); padding: 10px; border-radius: 6px; margin-bottom: 8px; }
@@ -75,17 +73,7 @@
         .map-container { position: relative; height: 100vh; width: 100%; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        /* --- FIRMA FOOTER --- */
-        .sidebar-footer {
-            padding: 12px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #888;
-            border-top: 1px solid var(--border);
-            background: var(--card-bg);
-            margin-top: auto; 
-            font-weight: bold;
-        }
+        .sidebar-footer { padding: 12px; text-align: center; font-size: 0.75rem; color: #888; border-top: 1px solid var(--border); background: var(--card-bg); margin-top: auto; font-weight: bold; }
 
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
@@ -117,7 +105,7 @@
             <button onclick="switchTab('tab-admin')">⚙️ Admin</button>
         </div>
 
-        <!-- 1. REGISTRO -->
+        <!-- 1. REGISTRO (SIN OPCIÓN DE CREAR GRUPO) -->
         <div id="tab-registro" class="tab-content active">
             <div id="form-login" class="card">
                 <h3 style="margin-top:0; color: var(--blue);">Unirse a la Caravana</h3>
@@ -130,8 +118,9 @@
                 <input type="tel" id="reg-tel" placeholder="Tu número">
                 <hr>
                 <label>Seleccionar Grupo:</label>
-                <select id="reg-grupo-select" onchange="verificarNuevoGrupo()"><option value="">Cargando...</option></select>
-                <input type="text" id="reg-grupo-nuevo" placeholder="Nombre del nuevo grupo" style="display:none;">
+                <!-- Solo muestra los grupos que crea el admin -->
+                <select id="reg-grupo-select"><option value="">Cargando...</option></select>
+                
                 <label>Contraseña del Grupo:</label>
                 <input type="password" id="reg-pass" placeholder="Contraseña secreta">
                 <button class="btn btn-blue" onclick="conectarGrupo()">CONECTAR AL MAPA</button>
@@ -161,22 +150,16 @@
         <div id="tab-info" class="tab-content">
             <div class="card" style="border: 2px solid var(--green);">
                 <h3 style="margin-top:0; color: var(--green);">🛒 Proveeduría - Pago</h3>
-                
-                <!-- Botón de Pago Directo -->
                 <a href="#" id="btn-pago-link" target="_blank" class="btn btn-green" style="display:none; text-align:center; text-decoration:none; margin-bottom: 15px;">💸 PAGAR AHORA CON LINK</a>
-
                 <label>Entidad / Banco:</label>
                 <div class="dato-transferencia"><span id="info-banco">Cargando...</span></div>
-                
                 <label>Titular:</label>
                 <div class="dato-transferencia"><span id="info-titular">Cargando...</span></div>
-
                 <label>Alias:</label>
                 <div class="dato-transferencia">
                     <span id="info-alias">Cargando...</span>
                     <button class="btn-copy" onclick="copiarTexto('info-alias')">Copiar</button>
                 </div>
-                
                 <label>CBU / CVU:</label>
                 <div class="dato-transferencia">
                     <span id="info-cbu">Cargando...</span>
@@ -209,6 +192,15 @@
 
             <div id="admin-panel" style="display: none;">
                 
+                <!-- CREAR NUEVO GRUPO (SOLO ADMIN) -->
+                <div class="card" style="border: 2px solid var(--blue);">
+                    <h3 style="margin-top:0; color: var(--blue);">➕ Crear Nuevo Grupo</h3>
+                    <p style="font-size: 0.8rem;">Creá un grupo nuevo para que las familias puedan seleccionarlo al entrar.</p>
+                    <input type="text" id="admin-nuevo-grupo" placeholder="Nombre del grupo (ej: lujan2026)">
+                    <input type="password" id="admin-nuevo-pass" placeholder="Contraseña para este grupo">
+                    <button class="btn btn-blue" onclick="crearGrupoAdmin()">CREAR GRUPO</button>
+                </div>
+
                 <!-- PUNTO DE ENCUENTRO -->
                 <div class="card" style="border: 2px solid var(--blue);">
                     <h3 style="margin-top:0; color: var(--blue);">🚩 Fijar Punto de Encuentro</h3>
@@ -383,6 +375,29 @@
         document.getElementById('admin-panel').style.display = "none";
     }
 
+    // Crear grupo desde Admin
+    function crearGrupoAdmin() {
+        const nombre = document.getElementById('admin-nuevo-grupo').value.trim().toLowerCase();
+        const pass = document.getElementById('admin-nuevo-pass').value.trim();
+
+        if(!nombre || !pass) return alert("Completá el nombre y la contraseña del nuevo grupo.");
+        if(nombre.includes(" ")) return alert("El nombre del grupo no debe tener espacios.");
+
+        const ref = db.ref('grupos/' + nombre);
+        ref.child('password').once('value').then(snap => {
+            if(snap.exists()) {
+                alert("Ese grupo ya existe.");
+            } else {
+                ref.child('password').set(pass).then(() => {
+                    alert("✅ Grupo creado exitosamente. Ahora las familias pueden seleccionarlo en la pantalla principal.");
+                    document.getElementById('admin-nuevo-grupo').value = "";
+                    document.getElementById('admin-nuevo-pass').value = "";
+                    cargarListaGrupos(); 
+                });
+            }
+        });
+    }
+
     function guardarDatosProveeduria() {
         db.ref('proveeduria/datos').set({
             link: document.getElementById('edit-link').value.trim(),
@@ -397,7 +412,6 @@
         window.open(tipo === 'agenda' ? LINK_PLANILLA_AGENDA : LINK_PLANILLA_PEDIDOS, '_blank');
     }
 
-    // Alertas Rápidas Admin
     function enviarAlertaAdmin(textoAlerta) {
         const user = JSON.parse(localStorage.getItem("caravana_user"));
         if(user) {
@@ -406,7 +420,6 @@
         } else alert("Debes estar conectado a un grupo para enviar alertas.");
     }
 
-    // Punto de Encuentro Admin
     function fijarPuntoEncuentro() {
         const user = JSON.parse(localStorage.getItem("caravana_user"));
         const lat = document.getElementById('admin-lat').value;
@@ -427,34 +440,37 @@
         const select = document.getElementById("reg-grupo-select");
         db.ref('grupos').once('value').then(snap => {
             select.innerHTML = '<option value="">-- Seleccionar --</option>';
-            if(snap.exists()) snap.forEach(child => select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`);
-            select.innerHTML += '<option value="NUEVO">➕ CREAR NUEVO</option>';
-        }).catch(() => select.innerHTML = '<option value="NUEVO">➕ CREAR NUEVO</option>');
-    }
-
-    function verificarNuevoGrupo() {
-        const sel = document.getElementById("reg-grupo-select");
-        const inp = document.getElementById("reg-grupo-nuevo");
-        inp.style.display = sel.value === "NUEVO" ? "block" : "none";
+            if(snap.exists()) {
+                snap.forEach(child => select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`);
+            } else {
+                select.innerHTML = '<option value="">(No hay grupos creados)</option>';
+            }
+        }).catch(() => select.innerHTML = '<option value="">Error al cargar</option>');
     }
 
     function conectarGrupo() {
-        let nGrupo = document.getElementById("reg-grupo-select").value;
-        nGrupo = (nGrupo === "NUEVO" ? document.getElementById("reg-grupo-nuevo").value : nGrupo).trim().toLowerCase();
-
+        const nGrupo = document.getElementById("reg-grupo-select").value.trim().toLowerCase();
+        
         const user = {
-            nombre: document.getElementById("reg-nombre").value.trim(), vehiculo: document.getElementById("reg-vehiculo").value.trim(),
-            patente: document.getElementById("reg-patente").value.trim().toUpperCase(), telefono: document.getElementById("reg-tel").value.trim(),
-            grupo: nGrupo, pass: document.getElementById("reg-pass").value.trim()
+            nombre: document.getElementById("reg-nombre").value.trim(), 
+            vehiculo: document.getElementById("reg-vehiculo").value.trim(),
+            patente: document.getElementById("reg-patente").value.trim().toUpperCase(), 
+            telefono: document.getElementById("reg-tel").value.trim(),
+            grupo: nGrupo, 
+            pass: document.getElementById("reg-pass").value.trim()
         };
 
-        if(!user.nombre || !user.patente || !user.grupo || !user.pass) return alert("Faltan datos.");
+        if(!user.nombre || !user.patente || !user.grupo || !user.pass) return alert("Faltan datos o no seleccionaste grupo.");
 
         const ref = db.ref('grupos/' + user.grupo);
         ref.child('password').once('value').then(snap => {
             const dbPass = snap.val();
-            if (dbPass === null) { ref.child('password').set(user.pass); iniciarSesion(user); } 
-            else { if (dbPass === user.pass) iniciarSesion(user); else alert("Contraseña incorrecta."); }
+            if (dbPass === null) { 
+                alert("Ese grupo no existe. Pedile al Administrador que lo cree."); 
+            } else { 
+                if (dbPass === user.pass) iniciarSesion(user); 
+                else alert("Contraseña incorrecta."); 
+            }
         });
     }
 
