@@ -5,49 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caravana Sagrada Familia</title>
     
-    <!-- Librerías de Mapas (Leaflet) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Librerías de Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
-        /* --- ESTILOS VISUALES (CSS) --- */
-        :root { 
-            --blue: #1a237e; 
-            --light-blue: #e8eaf6;
-            --red: #d32f2f; 
-            --green: #2e7d32;
-            --bg: #f4f6f8; 
-            --text: #333; 
-        }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+        /* --- ESTILOS VISUALES BASE --- */
+        :root { --blue: #1a237e; --light-blue: #e8eaf6; --red: #d32f2f; --green: #2e7d32; --bg: #f4f6f8; --text: #333; --card-bg: #fff; --border: #eee; }
+        
+        /* --- MODO NOCHE --- */
+        body.dark-mode { --bg: #121212; --text: #e0e0e0; --card-bg: #1e1e1e; --border: #333; --light-blue: #2c3e50; --blue: #3f51b5; }
+        body.dark-mode .sidebar { background: #121212; border-right-color: #333; }
+        body.dark-mode .tabs { background: #1e1e1e; border-bottom-color: #333; }
+        body.dark-mode input, body.dark-mode select { background: #333; color: white; border-color: #555; }
+        body.dark-mode .msg-other { background: #333; border-color: #444; }
+        /* Filtro oscuro para el mapa en modo noche */
+        body.dark-mode .leaflet-layer, body.dark-mode .leaflet-control-zoom-in, body.dark-mode .leaflet-control-zoom-out, body.dark-mode .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; transition: background 0.3s, color 0.3s; }
         
         .dashboard { display: grid; grid-template-columns: 350px 1fr; height: 100vh; width: 100vw; transition: all 0.3s ease; }
         .dashboard.map-hidden { grid-template-columns: 1fr; }
         .dashboard.map-hidden .map-container { display: none; }
         
-        /* PANEL IZQUIERDO */
-        .sidebar { background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; height: 100vh; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+        .sidebar { background: var(--card-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; height: 100vh; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
         .header { background: var(--blue); color: white; padding: 15px; text-align: center; position: relative; }
         .header h2 { margin: 0; font-size: 1.2rem; }
         .header p { margin: 5px 0 10px; font-size: 0.8rem; opacity: 0.8; }
+        .header-controls { display: flex; justify-content: center; gap: 10px; }
         
-        /* Pestañas */
-        .tabs { display: flex; border-bottom: 1px solid #ddd; background: #fff; flex-shrink: 0; overflow-x: auto; }
-        .tabs button { flex: 1; min-width: 70px; padding: 12px 2px; background: none; border: none; font-weight: bold; cursor: pointer; color: #666; font-size: 0.85rem; border-bottom: 3px solid transparent; }
+        .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--card-bg); flex-shrink: 0; overflow-x: auto; }
+        .tabs button { flex: 1; min-width: 70px; padding: 12px 2px; background: none; border: none; font-weight: bold; cursor: pointer; color: #888; font-size: 0.85rem; border-bottom: 3px solid transparent; }
         .tabs button.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
         
         .tab-content { padding: 20px; overflow-y: auto; flex-grow: 1; display: none; }
         .tab-content.active { display: block; }
         
-        .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         input, select { width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        label { font-weight: bold; font-size: 0.9rem; color: #555; }
+        label { font-weight: bold; font-size: 0.9rem; color: var(--text); }
         
-        /* Botones */
         .btn { width: 100%; padding: 14px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-red { background: var(--red); color: white; margin-top: 10px; }
@@ -55,31 +53,31 @@
         .btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
         .btn-small { padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white; cursor: pointer; }
         
-        /* Proveeduria Info */
+        /* Botones Rápidos Admin */
+        .btn-alerta { font-size: 0.8rem; padding: 10px; margin-bottom: 5px; background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; font-weight: bold; }
+        
         .dato-transferencia { display: flex; justify-content: space-between; align-items: center; background: var(--light-blue); padding: 10px; border-radius: 6px; margin-bottom: 8px; }
         .dato-transferencia span { font-family: monospace; font-size: 1.1rem; font-weight: bold; color: var(--blue); }
         .btn-copy { background: white; border: 1px solid var(--blue); color: var(--blue); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
 
-        /* Redes Sociales */
         .social-links a { display: block; text-align: center; padding: 12px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; font-size: 0.9rem; margin-top: 10px; }
         .btn-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
         .btn-fb { background: #1877F2; }
 
-        /* CHAT */
-        #chat-messages { height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: var(--bg); margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        #chat-messages { height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--bg); margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
         .msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; position: relative; }
-        .msg-other { background: white; align-self: flex-start; border: 1px solid #ddd; }
-        .msg-me { background: var(--light-blue); align-self: flex-end; border: 1px solid #c5cae9; }
+        .msg-other { background: var(--card-bg); align-self: flex-start; border: 1px solid var(--border); }
+        .msg-me { background: var(--light-blue); align-self: flex-end; border: 1px solid var(--border); }
+        .msg-alert { background: #ffebee !important; color: #c62828 !important; border-color: #ffcdd2 !important; width: 90%; align-self: center; text-align: center; font-weight: bold; font-size: 1rem; }
         .msg-sender { font-weight: bold; font-size: 0.75rem; color: var(--blue); margin-bottom: 2px; display: block; }
         .chat-input-area { display: flex; gap: 5px; }
 
-        /* MAPA */
         .map-container { position: relative; height: 100vh; width: 100%; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-            .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 2px solid #ddd; }
+            .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 2px solid var(--border); }
             .map-container { height: 50vh; }
             .dashboard.map-hidden { grid-template-rows: 1fr; }
             .dashboard.map-hidden .sidebar { max-height: 100vh; height: 100vh; border-bottom: none; }
@@ -94,10 +92,12 @@
         <div class="header">
             <h2>Sagrada Familia</h2>
             <p>Rastreo y Comunicación</p>
-            <button id="btn-toggle-map" class="btn-small" onclick="toggleMapa()">🗺️ Ocultar Mapa</button>
+            <div class="header-controls">
+                <button id="btn-toggle-map" class="btn-small" onclick="toggleMapa()">🗺️ Ocultar Mapa</button>
+                <button class="btn-small" onclick="toggleModoNoche()">🌙 Noche</button>
+            </div>
         </div>
         
-        <!-- Pestañas -->
         <div class="tabs" id="nav-tabs">
             <button class="active" onclick="switchTab('tab-registro')">🚗 Grupo</button>
             <button id="btn-tab-chat" onclick="switchTab('tab-chat')" style="display:none;">💬 Chat</button>
@@ -105,7 +105,7 @@
             <button onclick="switchTab('tab-admin')">⚙️ Admin</button>
         </div>
 
-        <!-- 1. PESTAÑA: REGISTRO / LOGIN -->
+        <!-- 1. REGISTRO -->
         <div id="tab-registro" class="tab-content active">
             <div id="form-login" class="card">
                 <h3 style="margin-top:0; color: var(--blue);">Unirse a la Caravana</h3>
@@ -126,14 +126,14 @@
             </div>
 
             <div id="panel-conectado" class="card" style="display:none; text-align: center;">
-                <h3 style="color: green;">✅ Grupo: <span id="lbl-grupo"></span></h3>
+                <h3 style="color: var(--green);">✅ Grupo: <span id="lbl-grupo"></span></h3>
                 <p><span id="lbl-vehiculo"></span> (<span id="lbl-patente"></span>)</p>
                 <button class="btn btn-red" onclick="enviarEmergencia()">⚠️ ENVIAR ALERTA DE EMERGENCIA</button>
                 <button class="btn btn-outline" onclick="desconectar()">Desconectar y Salir</button>
             </div>
         </div>
 
-        <!-- 2. PESTAÑA: CHAT -->
+        <!-- 2. CHAT -->
         <div id="tab-chat" class="tab-content">
             <div class="card" style="height: 100%; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box;">
                 <h3 style="margin-top:0; font-size: 1rem; color: var(--blue);">Canal de Radio (Chat)</h3>
@@ -145,22 +145,19 @@
             </div>
         </div>
 
-        <!-- 3. PESTAÑA: INFO Y PROVEEDURÍA -->
+        <!-- 3. INFO Y PROVEEDURÍA -->
         <div id="tab-info" class="tab-content">
-            <!-- SECCIÓN PROVEEDURÍA PARA FAMILIAS -->
             <div class="card" style="border: 2px solid var(--green);">
                 <h3 style="margin-top:0; color: var(--green);">🛒 Proveeduría - Pago</h3>
-                <p style="font-size: 0.85rem; color: #666; margin-top:0;">Transferí el dinero al encargado del día a esta cuenta:</p>
                 
+                <!-- Botón de Pago Directo -->
+                <a href="#" id="btn-pago-link" target="_blank" class="btn btn-green" style="display:none; text-align:center; text-decoration:none; margin-bottom: 15px;">💸 PAGAR AHORA CON LINK</a>
+
                 <label>Entidad / Banco:</label>
-                <div class="dato-transferencia">
-                    <span id="info-banco">Cargando...</span>
-                </div>
+                <div class="dato-transferencia"><span id="info-banco">Cargando...</span></div>
                 
                 <label>Titular:</label>
-                <div class="dato-transferencia">
-                    <span id="info-titular">Cargando...</span>
-                </div>
+                <div class="dato-transferencia"><span id="info-titular">Cargando...</span></div>
 
                 <label>Alias:</label>
                 <div class="dato-transferencia">
@@ -189,9 +186,8 @@
             </div>
         </div>
 
-        <!-- 4. PESTAÑA: ADMINISTRADOR -->
+        <!-- 4. ADMINISTRADOR -->
         <div id="tab-admin" class="tab-content">
-            <!-- Login de Admin -->
             <div id="admin-login" class="card">
                 <h3 style="margin-top:0; color: var(--red);">Acceso Administrador</h3>
                 <label>Contraseña de Admin:</label>
@@ -199,35 +195,47 @@
                 <button class="btn btn-red" onclick="verificarAdmin()">ENTRAR AL PANEL</button>
             </div>
 
-            <!-- Panel de Admin -->
             <div id="admin-panel" style="display: none;">
                 
-                <!-- Editar Planillas -->
+                <!-- PUNTO DE ENCUENTRO -->
+                <div class="card" style="border: 2px solid var(--blue);">
+                    <h3 style="margin-top:0; color: var(--blue);">🚩 Fijar Punto de Encuentro</h3>
+                    <p style="font-size: 0.8rem;">Tocá cualquier lugar en el mapa de la derecha para obtener las coordenadas y guiar a todos a ese punto.</p>
+                    <input type="text" id="admin-lat" placeholder="Latitud" readonly>
+                    <input type="text" id="admin-lng" placeholder="Longitud" readonly>
+                    <button class="btn btn-blue" onclick="fijarPuntoEncuentro()">📍 PUBLICAR PUNTO EN EL MAPA</button>
+                    <button class="btn btn-outline" onclick="borrarPuntoEncuentro()">❌ Borrar Punto</button>
+                </div>
+
+                <!-- ALERTAS DE RUTA -->
+                <div class="card" style="border: 2px solid var(--red);">
+                    <h3 style="margin-top:0; color: var(--red);">⚡ Alertas Rápidas de Ruta</h3>
+                    <button class="btn btn-alerta" onclick="enviarAlertaAdmin('⚠️ REDUCIR VELOCIDAD. Caravana estirada.')">⚠️ REDUCIR VELOCIDAD</button>
+                    <button class="btn btn-alerta" onclick="enviarAlertaAdmin('🛑 ATENCIÓN: Desvío en la ruta o Parada.')">🛑 DESVÍO / PARADA</button>
+                    <button class="btn btn-alerta" onclick="enviarAlertaAdmin('🛂 ATENCIÓN: Peaje / Control Policial cerca.')">🛂 PEAJE / CONTROL</button>
+                </div>
+
+                <!-- PLANILLAS -->
                 <div class="card">
-                    <h3 style="margin-top:0; color: var(--blue);">📝 Gestionar Listados</h3>
-                    <p style="font-size: 0.8rem; color: #666;">Al tocar estos botones se abrirá la app de Google Sheets en tu celular para que puedas editar las listas.</p>
+                    <h3 style="margin-top:0;">📝 Gestionar Listados</h3>
                     <button class="btn btn-blue" onclick="abrirPlanilla('agenda')">✏️ EDITAR AGENDA</button>
                     <button class="btn btn-blue" style="margin-top: 10px;" onclick="abrirPlanilla('pedidos')">✏️ EDITAR PEDIDOS</button>
                 </div>
 
-                <!-- Editar Proveeduría -->
+                <!-- PROVEEDURÍA -->
                 <div class="card" style="border: 2px solid var(--green);">
-                    <h3 style="margin-top:0; color: var(--green);">💸 Cambiar Datos Proveeduría</h3>
-                    <p style="font-size: 0.8rem; color: #666;">Actualizá quién recibe el dinero hoy. Al guardar, todas las familias lo verán al instante.</p>
-                    
-                    <label>Entidad / Banco / Billetera:</label>
+                    <h3 style="margin-top:0; color: var(--green);">💸 Datos Proveeduría</h3>
+                    <label>Link de Pago Directo (Opcional):</label>
+                    <input type="text" id="edit-link" placeholder="Ej: link de MercadoPago">
+                    <label>Entidad / Banco:</label>
                     <input type="text" id="edit-banco" placeholder="Ej: Mercado Pago">
-                    
-                    <label>Nombre del Titular:</label>
+                    <label>Titular:</label>
                     <input type="text" id="edit-titular" placeholder="Ej: Marcelo Sterli">
-
                     <label>Alias:</label>
                     <input type="text" id="edit-alias" placeholder="Ej: caravana.pagos">
-
                     <label>CBU / CVU:</label>
                     <input type="text" id="edit-cbu" placeholder="Ej: 0000003100000000000000">
-
-                    <button class="btn btn-green" onclick="guardarDatosProveeduria()">💾 GUARDAR NUEVOS DATOS</button>
+                    <button class="btn btn-green" onclick="guardarDatosProveeduria()">💾 GUARDAR DATOS</button>
                 </div>
                 
                 <button class="btn btn-outline" onclick="salirAdmin()">Cerrar Sesión Admin</button>
@@ -236,7 +244,7 @@
 
     </div>
 
-    <!-- PANEL DERECHO (MAPA) -->
+    <!-- MAPA -->
     <div class="map-container">
         <div id="map"></div>
     </div>
@@ -244,18 +252,14 @@
 
 <script>
     // ====================================================================
-    // ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR (EDITÁ ESTO ANTES DE USAR)
+    // ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR 
     // ====================================================================
-    
-    const PASS_ADMINISTRADOR = "Elmonomario1@"; // <-- Cambiá esto por la contraseña que quieras
-    
-    // Pegá acá los links de las planillas de Google (Los que sacás desde el navegador)
-    const LINK_PLANILLA_AGENDA = "https://docs.google.com/spreadsheets/d/1xQRikfAjsOodsYzIe4WZghWqaMWKeeeEenpiFioEO8U/edit?gid=1162670988#gid=1162670988/edit"; 
-    const LINK_PLANILLA_PEDIDOS = "https://docs.google.com/spreadsheets/d/1xQRikfAjsOodsYzIe4WZghWqaMWKeeeEenpiFioEO8U/edit?gid=1842387222#gid=1842387222/edit";
-
+    const PASS_ADMINISTRADOR = "Elmonomario1@"; 
+    const LINK_PLANILLA_AGENDA = "https://docs.google.com/spreadsheets/d/1xQRikfAjsOodsYzIe4WZghWqaMWKeeeEenpiFioEO8U/edit?gid=1162670988#gid=1162670988"; 
+    const LINK_PLANILLA_PEDIDOS = "https://docs.google.com/spreadsheets/d/1xQRikfAjsOodsYzIe4WZghWqaMWKeeeEenpiFioEO8U/edit?gid=1842387222#gid=1842387222";
     // ====================================================================
 
-    // --- 1. CONFIGURACIÓN DE FIREBASE ---
+    // --- FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyCg4QiqLk_qj7RbJaLApadz4Fp94K2iiwY",
         authDomain: "caravana-parroquia.firebaseapp.com",
@@ -265,14 +269,27 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. CONFIGURACIÓN DEL MAPA ---
+    // --- MAPA ---
     var map = L.map('map').setView([-31.63, -60.70], 12);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+    
     const carIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/744/744465.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] });
-    let marcadores = {}; 
-    let watchId = null;  
+    const flagIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/148/148878.png', iconSize: [40, 40], iconAnchor: [10, 40], popupAnchor: [10, -40] }); // Icono de bandera roja
 
-    // --- 3. LÓGICA DE INTERFAZ ---
+    let marcadores = {}; 
+    let marcadorPuntoEncuentro = null;
+    let watchId = null;  
+    let isAdminActive = false;
+
+    // Click en el mapa (Solo para Admin)
+    map.on('click', function(e) {
+        if(isAdminActive) {
+            document.getElementById('admin-lat').value = e.latlng.lat;
+            document.getElementById('admin-lng').value = e.latlng.lng;
+        }
+    });
+
+    // --- UI ---
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
@@ -285,26 +302,29 @@
         const dash = document.getElementById('main-dashboard');
         const btn = document.getElementById('btn-toggle-map');
         dash.classList.toggle('map-hidden');
-        if(dash.classList.contains('map-hidden')) btn.innerHTML = '🗺️ Mostrar Mapa';
-        else { btn.innerHTML = '🗺️ Ocultar Mapa'; setTimeout(() => map.invalidateSize(), 300); }
+        btn.innerHTML = dash.classList.contains('map-hidden') ? '🗺️ Mostrar Mapa' : '🗺️ Ocultar Mapa';
+        setTimeout(() => map.invalidateSize(), 300);
     }
 
-    function copiarTexto(idElemento) {
-        const texto = document.getElementById(idElemento).innerText;
-        navigator.clipboard.writeText(texto).then(() => alert("¡Copiado: " + texto + " !"));
+    function toggleModoNoche() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem("dark_mode", document.body.classList.contains('dark-mode'));
     }
 
-    // --- 4. CARGA INICIAL ---
+    function copiarTexto(id) {
+        navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => alert("¡Copiado!"));
+    }
+
     window.onload = function() {
         cargarListaGrupos();
         cargarDatosProveeduriaEnVivo();
+        if(localStorage.getItem("dark_mode") === "true") document.body.classList.add('dark-mode');
         if(localStorage.getItem("caravana_user")) activarModoConectado(JSON.parse(localStorage.getItem("caravana_user")));
         if(localStorage.getItem("admin_logged") === "true") habilitarPanelAdmin();
     };
 
-    // --- 5. LÓGICA DE PROVEEDURÍA (ADMIN Y USUARIOS) ---
+    // --- PROVEEDURÍA ---
     function cargarDatosProveeduriaEnVivo() {
-        // Escucha en tiempo real si el admin cambia los datos
         db.ref('proveeduria/datos').on('value', snap => {
             if(snap.exists()) {
                 const datos = snap.val();
@@ -313,7 +333,11 @@
                 document.getElementById('info-alias').innerText = datos.alias || "-";
                 document.getElementById('info-cbu').innerText = datos.cbu || "-";
                 
-                // Si es admin, también llena los campos de edición
+                const btnLink = document.getElementById('btn-pago-link');
+                if(datos.link) { btnLink.style.display = "block"; btnLink.href = datos.link; } 
+                else { btnLink.style.display = "none"; }
+
+                document.getElementById('edit-link').value = datos.link || "";
                 document.getElementById('edit-banco').value = datos.banco || "";
                 document.getElementById('edit-titular').value = datos.titular || "";
                 document.getElementById('edit-alias').value = datos.alias || "";
@@ -322,93 +346,102 @@
         });
     }
 
-    // --- 6. LÓGICA DE ADMINISTRADOR ---
+    // --- ADMINISTRADOR ---
     function verificarAdmin() {
-        const passIngresada = document.getElementById('admin-pass').value;
-        if(passIngresada === PASS_ADMINISTRADOR) {
-            localStorage.setItem("admin_logged", "true");
-            habilitarPanelAdmin();
-        } else {
-            alert("Contraseña de administrador incorrecta.");
-        }
+        if(document.getElementById('admin-pass').value === PASS_ADMINISTRADOR) {
+            localStorage.setItem("admin_logged", "true"); habilitarPanelAdmin();
+        } else alert("Contraseña incorrecta.");
     }
 
     function habilitarPanelAdmin() {
+        isAdminActive = true;
         document.getElementById('admin-login').style.display = "none";
         document.getElementById('admin-panel').style.display = "block";
     }
 
     function salirAdmin() {
+        isAdminActive = false;
         localStorage.removeItem("admin_logged");
         document.getElementById('admin-login').style.display = "block";
         document.getElementById('admin-panel').style.display = "none";
-        document.getElementById('admin-pass').value = "";
     }
 
     function guardarDatosProveeduria() {
-        const nuevosDatos = {
+        db.ref('proveeduria/datos').set({
+            link: document.getElementById('edit-link').value.trim(),
             banco: document.getElementById('edit-banco').value.trim(),
             titular: document.getElementById('edit-titular').value.trim(),
             alias: document.getElementById('edit-alias').value.trim(),
             cbu: document.getElementById('edit-cbu').value.trim()
-        };
-        db.ref('proveeduria/datos').set(nuevosDatos).then(() => {
-            alert("✅ Datos de cobro actualizados exitosamente. Las familias ya los pueden ver.");
-        });
+        }).then(() => alert("✅ Datos actualizados."));
     }
 
     function abrirPlanilla(tipo) {
-        if(tipo === 'agenda') window.open(LINK_PLANILLA_AGENDA, '_blank');
-        if(tipo === 'pedidos') window.open(LINK_PLANILLA_PEDIDOS, '_blank');
+        window.open(tipo === 'agenda' ? LINK_PLANILLA_AGENDA : LINK_PLANILLA_PEDIDOS, '_blank');
     }
 
-    // --- 7. LÓGICA DE INGRESO Y GRUPOS (Igual que antes) ---
+    // Alertas Rápidas Admin
+    function enviarAlertaAdmin(textoAlerta) {
+        const user = JSON.parse(localStorage.getItem("caravana_user"));
+        if(user) {
+            db.ref(`grupos/${user.grupo}/mensajes`).push({ nombre: "ADMINISTRACIÓN", patente: "ADMIN", texto: textoAlerta, esAlerta: true, hora: Date.now() });
+            switchTab('tab-chat');
+        } else alert("Debes estar conectado a un grupo para enviar alertas.");
+    }
+
+    // Punto de Encuentro Admin
+    function fijarPuntoEncuentro() {
+        const user = JSON.parse(localStorage.getItem("caravana_user"));
+        const lat = document.getElementById('admin-lat').value;
+        const lng = document.getElementById('admin-lng').value;
+        if(user && lat && lng) {
+            db.ref(`grupos/${user.grupo}/puntoEncuentro`).set({ lat: lat, lng: lng });
+            enviarAlertaAdmin("🚩 ¡NUEVO PUNTO DE ENCUENTRO FIJADO EN EL MAPA!");
+        } else alert("Toca un lugar en el mapa y asegúrate de estar en un grupo.");
+    }
+
+    function borrarPuntoEncuentro() {
+        const user = JSON.parse(localStorage.getItem("caravana_user"));
+        if(user) db.ref(`grupos/${user.grupo}/puntoEncuentro`).remove();
+    }
+
+    // --- LOGIN GRUPO ---
     function cargarListaGrupos() {
         const select = document.getElementById("reg-grupo-select");
         db.ref('grupos').once('value').then(snap => {
-            select.innerHTML = '<option value="">-- Seleccionar un Grupo --</option>';
-            if(snap.exists()){
-                snap.forEach(child => { select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`; });
-            }
-            select.innerHTML += '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>';
-        }).catch(() => { select.innerHTML = '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>'; });
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            if(snap.exists()) snap.forEach(child => select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`);
+            select.innerHTML += '<option value="NUEVO">➕ CREAR NUEVO</option>';
+        }).catch(() => select.innerHTML = '<option value="NUEVO">➕ CREAR NUEVO</option>');
     }
 
     function verificarNuevoGrupo() {
-        const select = document.getElementById("reg-grupo-select");
-        const inputNuevo = document.getElementById("reg-grupo-nuevo");
-        if(select.value === "NUEVO") { inputNuevo.style.display = "block"; inputNuevo.focus(); } 
-        else { inputNuevo.style.display = "none"; }
+        const sel = document.getElementById("reg-grupo-select");
+        const inp = document.getElementById("reg-grupo-nuevo");
+        inp.style.display = sel.value === "NUEVO" ? "block" : "none";
     }
 
     function conectarGrupo() {
-        let nombreGrupo = document.getElementById("reg-grupo-select").value;
-        if (nombreGrupo === "NUEVO") nombreGrupo = document.getElementById("reg-grupo-nuevo").value.trim().toLowerCase();
-        else nombreGrupo = nombreGrupo.toLowerCase();
+        let nGrupo = document.getElementById("reg-grupo-select").value;
+        nGrupo = (nGrupo === "NUEVO" ? document.getElementById("reg-grupo-nuevo").value : nGrupo).trim().toLowerCase();
 
         const user = {
-            nombre: document.getElementById("reg-nombre").value.trim(),
-            vehiculo: document.getElementById("reg-vehiculo").value.trim(),
-            patente: document.getElementById("reg-patente").value.trim().toUpperCase(),
-            telefono: document.getElementById("reg-tel").value.trim(),
-            grupo: nombreGrupo,
-            pass: document.getElementById("reg-pass").value.trim()
+            nombre: document.getElementById("reg-nombre").value.trim(), vehiculo: document.getElementById("reg-vehiculo").value.trim(),
+            patente: document.getElementById("reg-patente").value.trim().toUpperCase(), telefono: document.getElementById("reg-tel").value.trim(),
+            grupo: nGrupo, pass: document.getElementById("reg-pass").value.trim()
         };
 
         if(!user.nombre || !user.patente || !user.grupo || !user.pass) return alert("Faltan datos.");
 
-        const grupoRef = db.ref('grupos/' + user.grupo);
-        grupoRef.child('password').once('value').then((snapshot) => {
-            const dbPass = snapshot.val();
-            if (dbPass === null) { grupoRef.child('password').set(user.pass); iniciarSesion(user); } 
+        const ref = db.ref('grupos/' + user.grupo);
+        ref.child('password').once('value').then(snap => {
+            const dbPass = snap.val();
+            if (dbPass === null) { ref.child('password').set(user.pass); iniciarSesion(user); } 
             else { if (dbPass === user.pass) iniciarSesion(user); else alert("Contraseña incorrecta."); }
         });
     }
 
-    function iniciarSesion(user) {
-        localStorage.setItem("caravana_user", JSON.stringify(user));
-        activarModoConectado(user);
-    }
+    function iniciarSesion(user) { localStorage.setItem("caravana_user", JSON.stringify(user)); activarModoConectado(user); }
 
     function activarModoConectado(user) {
         document.getElementById("form-login").style.display = "none";
@@ -417,7 +450,7 @@
         document.getElementById("lbl-grupo").innerText = user.grupo.toUpperCase();
         document.getElementById("lbl-vehiculo").innerText = user.vehiculo;
         document.getElementById("lbl-patente").innerText = user.patente;
-        iniciarRastreo(user); iniciarChat(user);
+        iniciarRastreo(user); iniciarChat(user); escucharPuntoEncuentro(user);
     }
 
     function desconectar() {
@@ -425,8 +458,7 @@
             const user = JSON.parse(localStorage.getItem("caravana_user"));
             if(user) db.ref(`grupos/${user.grupo}/ubicaciones/${user.patente}`).remove();
             if(watchId) navigator.geolocation.clearWatch(watchId);
-            localStorage.removeItem("caravana_user");
-            location.reload(); 
+            localStorage.removeItem("caravana_user"); location.reload(); 
         }
     }
 
@@ -449,13 +481,24 @@
         });
     }
 
+    function escucharPuntoEncuentro(user) {
+        db.ref(`grupos/${user.grupo}/puntoEncuentro`).on('value', snap => {
+            const punto = snap.val();
+            if(marcadorPuntoEncuentro) map.removeLayer(marcadorPuntoEncuentro);
+            if(punto) {
+                marcadorPuntoEncuentro = L.marker([punto.lat, punto.lng], {icon: flagIcon}).addTo(map).bindPopup("<b>🚩 PUNTO DE ENCUENTRO</b>").openPopup();
+            }
+        });
+    }
+
     function iniciarChat(user) {
         const chatBox = document.getElementById("chat-messages");
         db.ref(`grupos/${user.grupo}/mensajes`).limitToLast(50).on('child_added', snap => {
             const msg = snap.val();
             const div = document.createElement("div");
-            div.className = `msg ${msg.patente === user.patente ? 'msg-me' : 'msg-other'}`;
-            if(msg.texto.includes("🚨")) { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; }
+            let extraClass = msg.patente === user.patente ? 'msg-me' : 'msg-other';
+            if(msg.esAlerta || msg.texto.includes("🚨")) extraClass += ' msg-alert';
+            div.className = `msg ${extraClass}`;
             div.innerHTML = `<span class="msg-sender">${msg.nombre}</span>${msg.texto}`;
             chatBox.appendChild(div); chatBox.scrollTop = chatBox.scrollHeight;
         });
