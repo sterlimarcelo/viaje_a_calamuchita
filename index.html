@@ -25,17 +25,21 @@
         body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
         
         /* Layout Principal: Grilla dividida */
-        .dashboard { display: grid; grid-template-columns: 350px 1fr; height: 100vh; width: 100vw; }
+        .dashboard { display: grid; grid-template-columns: 350px 1fr; height: 100vh; width: 100vw; transition: all 0.3s ease; }
+        
+        /* --- MODO MAPA OCULTO --- */
+        .dashboard.map-hidden { grid-template-columns: 1fr; }
+        .dashboard.map-hidden .map-container { display: none; }
         
         /* --- PANEL IZQUIERDO --- */
         .sidebar { background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; height: 100vh; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
-        .header { background: var(--blue); color: white; padding: 20px; text-align: center; }
+        .header { background: var(--blue); color: white; padding: 15px; text-align: center; position: relative; }
         .header h2 { margin: 0; font-size: 1.2rem; }
-        .header p { margin: 5px 0 0; font-size: 0.8rem; opacity: 0.8; }
+        .header p { margin: 5px 0 10px; font-size: 0.8rem; opacity: 0.8; }
         
         /* Pestañas de navegación */
-        .tabs { display: flex; border-bottom: 1px solid #ddd; background: #fff; }
-        .tabs button { flex: 1; padding: 15px 5px; background: none; border: none; font-weight: bold; cursor: pointer; color: #666; font-size: 0.9rem; border-bottom: 3px solid transparent; }
+        .tabs { display: flex; border-bottom: 1px solid #ddd; background: #fff; flex-shrink: 0; }
+        .tabs button { flex: 1; padding: 12px 2px; background: none; border: none; font-weight: bold; cursor: pointer; color: #666; font-size: 0.85rem; border-bottom: 3px solid transparent; }
         .tabs button.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
         
         /* Contenido de las pestañas */
@@ -53,7 +57,9 @@
         .btn-blue:hover { background: #121858; }
         .btn-red { background: var(--red); color: white; margin-top: 10px; }
         .btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
-        
+        .btn-small { padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white; cursor: pointer; }
+        .btn-small:hover { background: rgba(255,255,255,0.2); }
+
         /* Redes Sociales */
         .social-links { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         .social-links a { text-align: center; padding: 12px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; font-size: 0.9rem; }
@@ -80,17 +86,22 @@
             .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 2px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
             .map-container { height: 50vh; }
             #chat-messages { height: 200px; }
+            
+            /* Cuando se oculta el mapa en celular, el panel ocupa todo */
+            .dashboard.map-hidden { grid-template-rows: 1fr; }
+            .dashboard.map-hidden .sidebar { max-height: 100vh; height: 100vh; border-bottom: none; }
         }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
+<div class="dashboard" id="main-dashboard">
     <!-- === PANEL IZQUIERDO === -->
     <div class="sidebar">
         <div class="header">
             <h2>Sagrada Familia</h2>
-            <p>Rastreo y Comunicación de Caravana</p>
+            <p>Rastreo y Comunicación</p>
+            <button id="btn-toggle-map" class="btn-small" onclick="toggleMapa()">🗺️ Ocultar Mapa</button>
         </div>
         
         <!-- Pestañas -->
@@ -103,7 +114,7 @@
         <!-- 1. PESTAÑA: REGISTRO / LOGIN -->
         <div id="tab-registro" class="tab-content active">
             
-            <!-- Formulario de Ingreso (Se oculta si ya está logueado) -->
+            <!-- Formulario de Ingreso -->
             <div id="form-login" class="card">
                 <h3 style="margin-top:0; color: var(--blue);">Unirse a la Caravana</h3>
                 
@@ -119,8 +130,12 @@
 
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
                 
-                <label>Nombre del Grupo (Sin espacios):</label>
-                <input type="text" id="reg-grupo" placeholder="Ej: ViajeLujan">
+                <label>Seleccionar Grupo:</label>
+                <select id="reg-grupo-select" onchange="verificarNuevoGrupo()">
+                    <option value="">Cargando grupos...</option>
+                </select>
+                
+                <input type="text" id="reg-grupo-nuevo" placeholder="Escribí el nombre del nuevo grupo" style="display:none; border-color: var(--blue);">
                 
                 <label>Contraseña del Grupo:</label>
                 <input type="password" id="reg-pass" placeholder="Contraseña secreta">
@@ -128,7 +143,7 @@
                 <button class="btn btn-blue" onclick="conectarGrupo()">CONECTAR Y ENTRAR AL MAPA</button>
             </div>
 
-            <!-- Panel de Usuario Conectado (Se muestra al loguear) -->
+            <!-- Panel de Usuario Conectado -->
             <div id="panel-conectado" class="card" style="display:none; text-align: center;">
                 <h3 style="color: green;">✅ Conectado al Grupo: <span id="lbl-grupo"></span></h3>
                 <p><strong>Vehículo:</strong> <span id="lbl-vehiculo"></span> (<span id="lbl-patente"></span>)</p>
@@ -141,7 +156,7 @@
 
         <!-- 2. PESTAÑA: CHAT GRUPAL -->
         <div id="tab-chat" class="tab-content">
-            <div class="card" style="height: 100%; display: flex; flex-direction: column; padding: 10px;">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box;">
                 <h3 style="margin-top:0; font-size: 1rem; color: var(--blue);">Canal de Radio (Chat)</h3>
                 <div id="chat-messages">
                     <!-- Los mensajes aparecen acá -->
@@ -191,7 +206,6 @@
     const db = firebase.database();
 
     // --- 2. CONFIGURACIÓN DEL MAPA ---
-    // Centrado inicialmente en la zona de Santa Fe
     var map = L.map('map').setView([-31.63, -60.70], 12);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap'
@@ -204,68 +218,104 @@
         popupAnchor: [0, -16]
     });
 
-    let marcadores = {}; // Guarda los autitos en el mapa
-    let watchId = null;  // Controla el GPS
+    let marcadores = {}; 
+    let watchId = null;  
 
-    // --- 3. LÓGICA DE INTERFAZ (PESTAÑAS) ---
+    // --- 3. LÓGICA DE INTERFAZ (PESTAÑAS Y MAPA) ---
     function switchTab(tabId) {
-        // Ocultar todos los contenidos
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        // Quitar 'active' de los botones
         document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-        
-        // Activar el seleccionado
         document.getElementById(tabId).classList.add('active');
         event.currentTarget.classList.add('active');
-
-        // Refrescar tamaño del mapa por si hubo cambios de pantalla
         setTimeout(() => map.invalidateSize(), 300);
     }
 
+    function toggleMapa() {
+        const dash = document.getElementById('main-dashboard');
+        const btn = document.getElementById('btn-toggle-map');
+        dash.classList.toggle('map-hidden');
+        
+        if(dash.classList.contains('map-hidden')) {
+            btn.innerHTML = '🗺️ Mostrar Mapa';
+        } else {
+            btn.innerHTML = '🗺️ Ocultar Mapa';
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+    }
+
     // --- 4. LÓGICA DE INGRESO Y GRUPOS ---
-    
-    // Al cargar la página, chequear si ya estábamos conectados
     window.onload = function() {
+        cargarListaGrupos();
         if(localStorage.getItem("caravana_user")) {
             activarModoConectado(JSON.parse(localStorage.getItem("caravana_user")));
         }
     };
 
+    function cargarListaGrupos() {
+        const select = document.getElementById("reg-grupo-select");
+        db.ref('grupos').once('value').then(snap => {
+            select.innerHTML = '<option value="">-- Seleccionar un Grupo --</option>';
+            if(snap.exists()){
+                snap.forEach(child => {
+                    select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`;
+                });
+            }
+            select.innerHTML += '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>';
+        }).catch(err => {
+            select.innerHTML = '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>';
+        });
+    }
+
+    function verificarNuevoGrupo() {
+        const select = document.getElementById("reg-grupo-select");
+        const inputNuevo = document.getElementById("reg-grupo-nuevo");
+        if(select.value === "NUEVO") {
+            inputNuevo.style.display = "block";
+            inputNuevo.focus();
+        } else {
+            inputNuevo.style.display = "none";
+        }
+    }
+
     function conectarGrupo() {
+        // Determinar qué grupo se eligió (del select o del input nuevo)
+        let nombreGrupo = document.getElementById("reg-grupo-select").value;
+        if (nombreGrupo === "NUEVO") {
+            nombreGrupo = document.getElementById("reg-grupo-nuevo").value.trim().toLowerCase();
+        } else {
+            nombreGrupo = nombreGrupo.toLowerCase();
+        }
+
         const user = {
             nombre: document.getElementById("reg-nombre").value.trim(),
             vehiculo: document.getElementById("reg-vehiculo").value.trim(),
             patente: document.getElementById("reg-patente").value.trim().toUpperCase(),
             telefono: document.getElementById("reg-tel").value.trim(),
-            grupo: document.getElementById("reg-grupo").value.trim().toLowerCase(),
+            grupo: nombreGrupo,
             pass: document.getElementById("reg-pass").value.trim()
         };
 
         if(!user.nombre || !user.patente || !user.grupo || !user.pass) {
-            return alert("Por favor completá todos los campos, el grupo y la contraseña.");
+            return alert("Por favor completá todos los campos, seleccioná/creá un grupo y escribí la contraseña.");
         }
 
         const grupoRef = db.ref('grupos/' + user.grupo);
         
-        // Revisar si el grupo existe en la base de datos
         grupoRef.child('password').once('value').then((snapshot) => {
             const dbPass = snapshot.val();
             
             if (dbPass === null) {
-                // El grupo NO existe, lo creamos
+                // Crear grupo nuevo
                 grupoRef.child('password').set(user.pass);
                 iniciarSesion(user);
             } else {
-                // El grupo SÍ existe, verificamos contraseña
+                // Verificar contraseña existente
                 if (dbPass === user.pass) {
                     iniciarSesion(user);
                 } else {
-                    alert("Contraseña incorrecta para el grupo: " + user.grupo);
+                    alert("Contraseña incorrecta para el grupo: " + user.grupo.toUpperCase());
                 }
             }
-        }).catch(error => {
-            console.error(error);
-            alert("Hubo un error al conectar. Revisá tu conexión a internet.");
         });
     }
 
@@ -275,10 +325,9 @@
     }
 
     function activarModoConectado(user) {
-        // Cambiar UI
         document.getElementById("form-login").style.display = "none";
         document.getElementById("panel-conectado").style.display = "block";
-        document.getElementById("btn-tab-chat").style.display = "block"; // Mostrar pestaña chat
+        document.getElementById("btn-tab-chat").style.display = "block"; 
         
         document.getElementById("lbl-grupo").innerText = user.grupo.toUpperCase();
         document.getElementById("lbl-vehiculo").innerText = user.vehiculo;
@@ -292,19 +341,17 @@
         if(confirm("¿Seguro que querés desconectarte y dejar de compartir tu ubicación?")) {
             const user = JSON.parse(localStorage.getItem("caravana_user"));
             if(user) {
-                // Borrar mi ubicación de la base de datos
                 db.ref(`grupos/${user.grupo}/ubicaciones/${user.patente}`).remove();
             }
             if(watchId) navigator.geolocation.clearWatch(watchId);
             
             localStorage.removeItem("caravana_user");
-            location.reload(); // Recargar la página
+            location.reload(); 
         }
     }
 
     // --- 5. RASTREO EN VIVO (GPS) ---
     function iniciarRastreo(user) {
-        // 1. Enviar mi posición constantemente
         if (navigator.geolocation) {
             watchId = navigator.geolocation.watchPosition(pos => {
                 const { latitude, longitude } = pos.coords;
@@ -318,7 +365,6 @@
                     timestamp: Date.now()
                 });
                 
-                // Centrar el mapa en mi primera ubicación
                 if(!map.ubicacionInicialFijada) {
                     map.setView([latitude, longitude], 14);
                     map.ubicacionInicialFijada = true;
@@ -330,11 +376,9 @@
             alert("Tu navegador no soporta GPS.");
         }
 
-        // 2. Escuchar las posiciones de TODOS en mi grupo
         db.ref(`grupos/${user.grupo}/ubicaciones`).on('value', snap => {
             const list = snap.val();
             
-            // Eliminar marcadores de gente que se desconectó
             for(let id in marcadores) {
                 if(!list || !list[id]) {
                     map.removeLayer(marcadores[id]);
@@ -342,7 +386,6 @@
                 }
             }
 
-            // Actualizar o crear marcadores
             for(let patente in list) {
                 const v = list[patente];
                 const infoHtml = `<div style="text-align:center;"><b>${v.nombre}</b><br>🚗 ${v.vehiculo}<br>🆔 ${patente}<br>📱 <a href="tel:${v.telefono}">${v.telefono}</a></div>`;
@@ -363,7 +406,6 @@
     function iniciarChat(user) {
         const chatBox = document.getElementById("chat-messages");
         
-        // Escuchar mensajes nuevos en el grupo
         db.ref(`grupos/${user.grupo}/mensajes`).limitToLast(50).on('child_added', snap => {
             const msg = snap.val();
             const isMe = msg.patente === user.patente;
@@ -371,7 +413,6 @@
             const div = document.createElement("div");
             div.className = `msg ${isMe ? 'msg-me' : 'msg-other'}`;
             
-            // Si el mensaje es rojo (emergencia), cambiar estilo
             if(msg.texto.includes("🚨")) {
                 div.style.backgroundColor = "#ffebee";
                 div.style.borderColor = "#ffcdd2";
@@ -380,8 +421,6 @@
 
             div.innerHTML = `<span class="msg-sender">${msg.nombre}</span>${msg.texto}`;
             chatBox.appendChild(div);
-            
-            // Scroll automático hacia abajo
             chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
@@ -411,7 +450,7 @@
                 texto: "🚨 ¡NECESITO ASISTENCIA / PARADA DE EMERGENCIA! 🚨",
                 hora: Date.now()
             });
-            switchTab('tab-chat'); // Lleva al usuario al chat para que vea que se mandó
+            switchTab('tab-chat'); 
         }
     }
 
