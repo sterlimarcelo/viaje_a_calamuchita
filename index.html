@@ -19,34 +19,30 @@
             --blue: #1a237e; 
             --light-blue: #e8eaf6;
             --red: #d32f2f; 
+            --green: #2e7d32;
             --bg: #f4f6f8; 
             --text: #333; 
         }
         body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
         
-        /* Layout Principal: Grilla dividida */
         .dashboard { display: grid; grid-template-columns: 350px 1fr; height: 100vh; width: 100vw; transition: all 0.3s ease; }
-        
-        /* --- MODO MAPA OCULTO --- */
         .dashboard.map-hidden { grid-template-columns: 1fr; }
         .dashboard.map-hidden .map-container { display: none; }
         
-        /* --- PANEL IZQUIERDO --- */
+        /* PANEL IZQUIERDO */
         .sidebar { background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; height: 100vh; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
         .header { background: var(--blue); color: white; padding: 15px; text-align: center; position: relative; }
         .header h2 { margin: 0; font-size: 1.2rem; }
         .header p { margin: 5px 0 10px; font-size: 0.8rem; opacity: 0.8; }
         
-        /* Pestañas de navegación */
-        .tabs { display: flex; border-bottom: 1px solid #ddd; background: #fff; flex-shrink: 0; }
-        .tabs button { flex: 1; padding: 12px 2px; background: none; border: none; font-weight: bold; cursor: pointer; color: #666; font-size: 0.85rem; border-bottom: 3px solid transparent; }
+        /* Pestañas */
+        .tabs { display: flex; border-bottom: 1px solid #ddd; background: #fff; flex-shrink: 0; overflow-x: auto; }
+        .tabs button { flex: 1; min-width: 70px; padding: 12px 2px; background: none; border: none; font-weight: bold; cursor: pointer; color: #666; font-size: 0.85rem; border-bottom: 3px solid transparent; }
         .tabs button.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
         
-        /* Contenido de las pestañas */
         .tab-content { padding: 20px; overflow-y: auto; flex-grow: 1; display: none; }
         .tab-content.active { display: block; }
         
-        /* Tarjetas y Formularios */
         .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         input, select { width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
         label { font-weight: bold; font-size: 0.9rem; color: #555; }
@@ -54,40 +50,37 @@
         /* Botones */
         .btn { width: 100%; padding: 14px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         .btn-blue { background: var(--blue); color: white; }
-        .btn-blue:hover { background: #121858; }
         .btn-red { background: var(--red); color: white; margin-top: 10px; }
+        .btn-green { background: var(--green); color: white; margin-top: 10px; }
         .btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
         .btn-small { padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white; cursor: pointer; }
-        .btn-small:hover { background: rgba(255,255,255,0.2); }
+        
+        /* Proveeduria Info */
+        .dato-transferencia { display: flex; justify-content: space-between; align-items: center; background: var(--light-blue); padding: 10px; border-radius: 6px; margin-bottom: 8px; }
+        .dato-transferencia span { font-family: monospace; font-size: 1.1rem; font-weight: bold; color: var(--blue); }
+        .btn-copy { background: white; border: 1px solid var(--blue); color: var(--blue); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
 
         /* Redes Sociales */
-        .social-links { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .social-links a { text-align: center; padding: 12px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; font-size: 0.9rem; }
+        .social-links a { display: block; text-align: center; padding: 12px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; font-size: 0.9rem; margin-top: 10px; }
         .btn-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
         .btn-fb { background: #1877F2; }
 
-        /* --- CHAT --- */
+        /* CHAT */
         #chat-messages { height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: var(--bg); margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
         .msg { max-width: 85%; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; position: relative; }
-        .msg-other { background: white; align-self: flex-start; border: 1px solid #ddd; border-bottom-left-radius: 2px; }
-        .msg-me { background: var(--light-blue); align-self: flex-end; border: 1px solid #c5cae9; border-bottom-right-radius: 2px; }
+        .msg-other { background: white; align-self: flex-start; border: 1px solid #ddd; }
+        .msg-me { background: var(--light-blue); align-self: flex-end; border: 1px solid #c5cae9; }
         .msg-sender { font-weight: bold; font-size: 0.75rem; color: var(--blue); margin-bottom: 2px; display: block; }
         .chat-input-area { display: flex; gap: 5px; }
-        .chat-input-area input { margin: 0; }
-        .chat-input-area button { width: auto; padding: 0 20px; }
 
-        /* --- MAPA (DERECHA) --- */
+        /* MAPA */
         .map-container { position: relative; height: 100vh; width: 100%; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        /* --- ADAPTACIÓN PARA CELULARES --- */
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-            .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 2px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 2px solid #ddd; }
             .map-container { height: 50vh; }
-            #chat-messages { height: 200px; }
-            
-            /* Cuando se oculta el mapa en celular, el panel ocupa todo */
             .dashboard.map-hidden { grid-template-rows: 1fr; }
             .dashboard.map-hidden .sidebar { max-height: 100vh; height: 100vh; border-bottom: none; }
         }
@@ -96,7 +89,7 @@
 <body>
 
 <div class="dashboard" id="main-dashboard">
-    <!-- === PANEL IZQUIERDO === -->
+    <!-- PANEL IZQUIERDO -->
     <div class="sidebar">
         <div class="header">
             <h2>Sagrada Familia</h2>
@@ -106,94 +99,162 @@
         
         <!-- Pestañas -->
         <div class="tabs" id="nav-tabs">
-            <button class="active" onclick="switchTab('tab-registro')">Mi Grupo</button>
-            <button id="btn-tab-chat" onclick="switchTab('tab-chat')" style="display:none;">Chat</button>
-            <button onclick="switchTab('tab-info')">Info & Redes</button>
+            <button class="active" onclick="switchTab('tab-registro')">🚗 Grupo</button>
+            <button id="btn-tab-chat" onclick="switchTab('tab-chat')" style="display:none;">💬 Chat</button>
+            <button onclick="switchTab('tab-info')">ℹ️ Info</button>
+            <button onclick="switchTab('tab-admin')">⚙️ Admin</button>
         </div>
 
         <!-- 1. PESTAÑA: REGISTRO / LOGIN -->
         <div id="tab-registro" class="tab-content active">
-            
-            <!-- Formulario de Ingreso -->
             <div id="form-login" class="card">
                 <h3 style="margin-top:0; color: var(--blue);">Unirse a la Caravana</h3>
-                
                 <label>Tu Nombre y Apellido:</label>
                 <input type="text" id="reg-nombre" placeholder="Ej: Juan Pérez">
-                
                 <label>Vehículo y Patente:</label>
                 <input type="text" id="reg-vehiculo" placeholder="Modelo (Ej: VW Gol)">
                 <input type="text" id="reg-patente" placeholder="Patente (Ej: AB123CD)">
-                
                 <label>Teléfono / WhatsApp:</label>
                 <input type="tel" id="reg-tel" placeholder="Tu número">
-
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                
+                <hr>
                 <label>Seleccionar Grupo:</label>
-                <select id="reg-grupo-select" onchange="verificarNuevoGrupo()">
-                    <option value="">Cargando grupos...</option>
-                </select>
-                
-                <input type="text" id="reg-grupo-nuevo" placeholder="Escribí el nombre del nuevo grupo" style="display:none; border-color: var(--blue);">
-                
+                <select id="reg-grupo-select" onchange="verificarNuevoGrupo()"><option value="">Cargando...</option></select>
+                <input type="text" id="reg-grupo-nuevo" placeholder="Nombre del nuevo grupo" style="display:none;">
                 <label>Contraseña del Grupo:</label>
                 <input type="password" id="reg-pass" placeholder="Contraseña secreta">
-                
-                <button class="btn btn-blue" onclick="conectarGrupo()">CONECTAR Y ENTRAR AL MAPA</button>
+                <button class="btn btn-blue" onclick="conectarGrupo()">CONECTAR AL MAPA</button>
             </div>
 
-            <!-- Panel de Usuario Conectado -->
             <div id="panel-conectado" class="card" style="display:none; text-align: center;">
-                <h3 style="color: green;">✅ Conectado al Grupo: <span id="lbl-grupo"></span></h3>
-                <p><strong>Vehículo:</strong> <span id="lbl-vehiculo"></span> (<span id="lbl-patente"></span>)</p>
-                <p>Tu ubicación se está compartiendo en el mapa.</p>
-                
+                <h3 style="color: green;">✅ Grupo: <span id="lbl-grupo"></span></h3>
+                <p><span id="lbl-vehiculo"></span> (<span id="lbl-patente"></span>)</p>
                 <button class="btn btn-red" onclick="enviarEmergencia()">⚠️ ENVIAR ALERTA DE EMERGENCIA</button>
                 <button class="btn btn-outline" onclick="desconectar()">Desconectar y Salir</button>
             </div>
         </div>
 
-        <!-- 2. PESTAÑA: CHAT GRUPAL -->
+        <!-- 2. PESTAÑA: CHAT -->
         <div id="tab-chat" class="tab-content">
             <div class="card" style="height: 100%; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box;">
                 <h3 style="margin-top:0; font-size: 1rem; color: var(--blue);">Canal de Radio (Chat)</h3>
-                <div id="chat-messages">
-                    <!-- Los mensajes aparecen acá -->
-                </div>
+                <div id="chat-messages"></div>
                 <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Escribir mensaje..." onkeypress="if(event.key === 'Enter') enviarMensaje()">
-                    <button class="btn btn-blue" onclick="enviarMensaje()">➤</button>
+                    <input type="text" id="chat-input" placeholder="Mensaje..." onkeypress="if(event.key === 'Enter') enviarMensaje()">
+                    <button class="btn btn-blue" style="width: auto; padding: 0 20px;" onclick="enviarMensaje()">➤</button>
                 </div>
             </div>
         </div>
 
-        <!-- 3. PESTAÑA: INFO, REDES Y AGENDA -->
+        <!-- 3. PESTAÑA: INFO Y PROVEEDURÍA -->
         <div id="tab-info" class="tab-content">
+            <!-- SECCIÓN PROVEEDURÍA PARA FAMILIAS -->
+            <div class="card" style="border: 2px solid var(--green);">
+                <h3 style="margin-top:0; color: var(--green);">🛒 Proveeduría - Pago</h3>
+                <p style="font-size: 0.85rem; color: #666; margin-top:0;">Transferí el dinero al encargado del día a esta cuenta:</p>
+                
+                <label>Entidad / Banco:</label>
+                <div class="dato-transferencia">
+                    <span id="info-banco">Cargando...</span>
+                </div>
+                
+                <label>Titular:</label>
+                <div class="dato-transferencia">
+                    <span id="info-titular">Cargando...</span>
+                </div>
+
+                <label>Alias:</label>
+                <div class="dato-transferencia">
+                    <span id="info-alias">Cargando...</span>
+                    <button class="btn-copy" onclick="copiarTexto('info-alias')">Copiar</button>
+                </div>
+                
+                <label>CBU / CVU:</label>
+                <div class="dato-transferencia">
+                    <span id="info-cbu">Cargando...</span>
+                    <button class="btn-copy" onclick="copiarTexto('info-cbu')">Copiar</button>
+                </div>
+            </div>
+
             <div class="card">
-                <h3 style="margin-top:0;">Compartir el Viaje</h3>
-                <p style="font-size: 0.85rem; color: #666;">Subí fotos y seguí las novedades en las redes de la Parroquia.</p>
+                <h3 style="margin-top:0;">Pedidos</h3>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScFTpRBCZRhmGVKYvYqQQimw9TVCYkBalDoU4a_C93YX1m8Fg/viewform" target="_blank" class="btn btn-outline" style="display:block; text-align:center; text-decoration:none;">📝 Hacer un Pedido</a>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top:0;">Redes Sociales</h3>
                 <div class="social-links">
                     <a href="https://www.instagram.com/sagradafamiliaparroquia70?igsh=eDdiYmhpN3N1enRz" target="_blank" class="btn-ig">📸 Abrir Instagram</a>
                     <a href="https://www.facebook.com/share/16rpmWnSBR/" target="_blank" class="btn-fb">👍 Abrir Facebook</a>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <h3 style="margin-top:0;">Agenda y Pedidos</h3>
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLScFTpRBCZRhmGVKYvYqQQimw9TVCYkBalDoU4a_C93YX1m8Fg/viewform" target="_blank" class="btn btn-outline" style="display:block; text-align:center; text-decoration:none;">📝 Abrir Formulario de Pedidos</a>
+        <!-- 4. PESTAÑA: ADMINISTRADOR -->
+        <div id="tab-admin" class="tab-content">
+            <!-- Login de Admin -->
+            <div id="admin-login" class="card">
+                <h3 style="margin-top:0; color: var(--red);">Acceso Administrador</h3>
+                <label>Contraseña de Admin:</label>
+                <input type="password" id="admin-pass" placeholder="Ingresar contraseña">
+                <button class="btn btn-red" onclick="verificarAdmin()">ENTRAR AL PANEL</button>
+            </div>
+
+            <!-- Panel de Admin -->
+            <div id="admin-panel" style="display: none;">
+                
+                <!-- Editar Planillas -->
+                <div class="card">
+                    <h3 style="margin-top:0; color: var(--blue);">📝 Gestionar Listados</h3>
+                    <p style="font-size: 0.8rem; color: #666;">Al tocar estos botones se abrirá la app de Google Sheets en tu celular para que puedas editar las listas.</p>
+                    <button class="btn btn-blue" onclick="abrirPlanilla('agenda')">✏️ EDITAR AGENDA</button>
+                    <button class="btn btn-blue" style="margin-top: 10px;" onclick="abrirPlanilla('pedidos')">✏️ EDITAR PEDIDOS</button>
+                </div>
+
+                <!-- Editar Proveeduría -->
+                <div class="card" style="border: 2px solid var(--green);">
+                    <h3 style="margin-top:0; color: var(--green);">💸 Cambiar Datos Proveeduría</h3>
+                    <p style="font-size: 0.8rem; color: #666;">Actualizá quién recibe el dinero hoy. Al guardar, todas las familias lo verán al instante.</p>
+                    
+                    <label>Entidad / Banco / Billetera:</label>
+                    <input type="text" id="edit-banco" placeholder="Ej: Mercado Pago">
+                    
+                    <label>Nombre del Titular:</label>
+                    <input type="text" id="edit-titular" placeholder="Ej: Marcelo Sterli">
+
+                    <label>Alias:</label>
+                    <input type="text" id="edit-alias" placeholder="Ej: caravana.pagos">
+
+                    <label>CBU / CVU:</label>
+                    <input type="text" id="edit-cbu" placeholder="Ej: 0000003100000000000000">
+
+                    <button class="btn btn-green" onclick="guardarDatosProveeduria()">💾 GUARDAR NUEVOS DATOS</button>
+                </div>
+                
+                <button class="btn btn-outline" onclick="salirAdmin()">Cerrar Sesión Admin</button>
             </div>
         </div>
 
     </div>
 
-    <!-- === PANEL DERECHO (MAPA) === -->
+    <!-- PANEL DERECHO (MAPA) -->
     <div class="map-container">
         <div id="map"></div>
     </div>
 </div>
 
 <script>
+    // ====================================================================
+    // ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR (EDITÁ ESTO ANTES DE USAR)
+    // ====================================================================
+    
+    const PASS_ADMINISTRADOR = "Elmonomario1@"; // <-- Cambiá esto por la contraseña que quieras
+    
+    // Pegá acá los links de las planillas de Google (Los que sacás desde el navegador)
+    const LINK_PLANILLA_AGENDA = "https://docs.google.com/spreadsheets/d/1xQRikfAjsOodsYzIe4WZghWqaMWKeeeEenpiFioEO8U/edit?gid=1162670988#gid=1162670988/edit"; 
+    const LINK_PLANILLA_PEDIDOS = "https://docs.google.com/spreadsheets/d/1xQRikfAjsOodsYzIe4WZghWqaMWKeeeEenpiFioEO8U/edit?gid=1842387222#gid=1842387222/edit";
+
+    // ====================================================================
+
     // --- 1. CONFIGURACIÓN DE FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyCg4QiqLk_qj7RbJaLApadz4Fp94K2iiwY",
@@ -201,27 +262,17 @@
         projectId: "caravana-parroquia",
         databaseURL: "https://caravana-parroquia-default-rtdb.firebaseio.com"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     // --- 2. CONFIGURACIÓN DEL MAPA ---
     var map = L.map('map').setView([-31.63, -60.70], 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    const carIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/744/744465.png', 
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
-    });
-
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+    const carIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/744/744465.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] });
     let marcadores = {}; 
     let watchId = null;  
 
-    // --- 3. LÓGICA DE INTERFAZ (PESTAÑAS Y MAPA) ---
+    // --- 3. LÓGICA DE INTERFAZ ---
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
@@ -234,57 +285,106 @@
         const dash = document.getElementById('main-dashboard');
         const btn = document.getElementById('btn-toggle-map');
         dash.classList.toggle('map-hidden');
-        
-        if(dash.classList.contains('map-hidden')) {
-            btn.innerHTML = '🗺️ Mostrar Mapa';
+        if(dash.classList.contains('map-hidden')) btn.innerHTML = '🗺️ Mostrar Mapa';
+        else { btn.innerHTML = '🗺️ Ocultar Mapa'; setTimeout(() => map.invalidateSize(), 300); }
+    }
+
+    function copiarTexto(idElemento) {
+        const texto = document.getElementById(idElemento).innerText;
+        navigator.clipboard.writeText(texto).then(() => alert("¡Copiado: " + texto + " !"));
+    }
+
+    // --- 4. CARGA INICIAL ---
+    window.onload = function() {
+        cargarListaGrupos();
+        cargarDatosProveeduriaEnVivo();
+        if(localStorage.getItem("caravana_user")) activarModoConectado(JSON.parse(localStorage.getItem("caravana_user")));
+        if(localStorage.getItem("admin_logged") === "true") habilitarPanelAdmin();
+    };
+
+    // --- 5. LÓGICA DE PROVEEDURÍA (ADMIN Y USUARIOS) ---
+    function cargarDatosProveeduriaEnVivo() {
+        // Escucha en tiempo real si el admin cambia los datos
+        db.ref('proveeduria/datos').on('value', snap => {
+            if(snap.exists()) {
+                const datos = snap.val();
+                document.getElementById('info-banco').innerText = datos.banco || "-";
+                document.getElementById('info-titular').innerText = datos.titular || "-";
+                document.getElementById('info-alias').innerText = datos.alias || "-";
+                document.getElementById('info-cbu').innerText = datos.cbu || "-";
+                
+                // Si es admin, también llena los campos de edición
+                document.getElementById('edit-banco').value = datos.banco || "";
+                document.getElementById('edit-titular').value = datos.titular || "";
+                document.getElementById('edit-alias').value = datos.alias || "";
+                document.getElementById('edit-cbu').value = datos.cbu || "";
+            }
+        });
+    }
+
+    // --- 6. LÓGICA DE ADMINISTRADOR ---
+    function verificarAdmin() {
+        const passIngresada = document.getElementById('admin-pass').value;
+        if(passIngresada === PASS_ADMINISTRADOR) {
+            localStorage.setItem("admin_logged", "true");
+            habilitarPanelAdmin();
         } else {
-            btn.innerHTML = '🗺️ Ocultar Mapa';
-            setTimeout(() => map.invalidateSize(), 300);
+            alert("Contraseña de administrador incorrecta.");
         }
     }
 
-    // --- 4. LÓGICA DE INGRESO Y GRUPOS ---
-    window.onload = function() {
-        cargarListaGrupos();
-        if(localStorage.getItem("caravana_user")) {
-            activarModoConectado(JSON.parse(localStorage.getItem("caravana_user")));
-        }
-    };
+    function habilitarPanelAdmin() {
+        document.getElementById('admin-login').style.display = "none";
+        document.getElementById('admin-panel').style.display = "block";
+    }
 
+    function salirAdmin() {
+        localStorage.removeItem("admin_logged");
+        document.getElementById('admin-login').style.display = "block";
+        document.getElementById('admin-panel').style.display = "none";
+        document.getElementById('admin-pass').value = "";
+    }
+
+    function guardarDatosProveeduria() {
+        const nuevosDatos = {
+            banco: document.getElementById('edit-banco').value.trim(),
+            titular: document.getElementById('edit-titular').value.trim(),
+            alias: document.getElementById('edit-alias').value.trim(),
+            cbu: document.getElementById('edit-cbu').value.trim()
+        };
+        db.ref('proveeduria/datos').set(nuevosDatos).then(() => {
+            alert("✅ Datos de cobro actualizados exitosamente. Las familias ya los pueden ver.");
+        });
+    }
+
+    function abrirPlanilla(tipo) {
+        if(tipo === 'agenda') window.open(LINK_PLANILLA_AGENDA, '_blank');
+        if(tipo === 'pedidos') window.open(LINK_PLANILLA_PEDIDOS, '_blank');
+    }
+
+    // --- 7. LÓGICA DE INGRESO Y GRUPOS (Igual que antes) ---
     function cargarListaGrupos() {
         const select = document.getElementById("reg-grupo-select");
         db.ref('grupos').once('value').then(snap => {
             select.innerHTML = '<option value="">-- Seleccionar un Grupo --</option>';
             if(snap.exists()){
-                snap.forEach(child => {
-                    select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`;
-                });
+                snap.forEach(child => { select.innerHTML += `<option value="${child.key}">${child.key.toUpperCase()}</option>`; });
             }
             select.innerHTML += '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>';
-        }).catch(err => {
-            select.innerHTML = '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>';
-        });
+        }).catch(() => { select.innerHTML = '<option value="NUEVO">➕ CREAR NUEVO GRUPO</option>'; });
     }
 
     function verificarNuevoGrupo() {
         const select = document.getElementById("reg-grupo-select");
         const inputNuevo = document.getElementById("reg-grupo-nuevo");
-        if(select.value === "NUEVO") {
-            inputNuevo.style.display = "block";
-            inputNuevo.focus();
-        } else {
-            inputNuevo.style.display = "none";
-        }
+        if(select.value === "NUEVO") { inputNuevo.style.display = "block"; inputNuevo.focus(); } 
+        else { inputNuevo.style.display = "none"; }
     }
 
     function conectarGrupo() {
-        // Determinar qué grupo se eligió (del select o del input nuevo)
         let nombreGrupo = document.getElementById("reg-grupo-select").value;
-        if (nombreGrupo === "NUEVO") {
-            nombreGrupo = document.getElementById("reg-grupo-nuevo").value.trim().toLowerCase();
-        } else {
-            nombreGrupo = nombreGrupo.toLowerCase();
-        }
+        if (nombreGrupo === "NUEVO") nombreGrupo = document.getElementById("reg-grupo-nuevo").value.trim().toLowerCase();
+        else nombreGrupo = nombreGrupo.toLowerCase();
 
         const user = {
             nombre: document.getElementById("reg-nombre").value.trim(),
@@ -295,27 +395,13 @@
             pass: document.getElementById("reg-pass").value.trim()
         };
 
-        if(!user.nombre || !user.patente || !user.grupo || !user.pass) {
-            return alert("Por favor completá todos los campos, seleccioná/creá un grupo y escribí la contraseña.");
-        }
+        if(!user.nombre || !user.patente || !user.grupo || !user.pass) return alert("Faltan datos.");
 
         const grupoRef = db.ref('grupos/' + user.grupo);
-        
         grupoRef.child('password').once('value').then((snapshot) => {
             const dbPass = snapshot.val();
-            
-            if (dbPass === null) {
-                // Crear grupo nuevo
-                grupoRef.child('password').set(user.pass);
-                iniciarSesion(user);
-            } else {
-                // Verificar contraseña existente
-                if (dbPass === user.pass) {
-                    iniciarSesion(user);
-                } else {
-                    alert("Contraseña incorrecta para el grupo: " + user.grupo.toUpperCase());
-                }
-            }
+            if (dbPass === null) { grupoRef.child('password').set(user.pass); iniciarSesion(user); } 
+            else { if (dbPass === user.pass) iniciarSesion(user); else alert("Contraseña incorrecta."); }
         });
     }
 
@@ -328,132 +414,69 @@
         document.getElementById("form-login").style.display = "none";
         document.getElementById("panel-conectado").style.display = "block";
         document.getElementById("btn-tab-chat").style.display = "block"; 
-        
         document.getElementById("lbl-grupo").innerText = user.grupo.toUpperCase();
         document.getElementById("lbl-vehiculo").innerText = user.vehiculo;
         document.getElementById("lbl-patente").innerText = user.patente;
-
-        iniciarRastreo(user);
-        iniciarChat(user);
+        iniciarRastreo(user); iniciarChat(user);
     }
 
     function desconectar() {
-        if(confirm("¿Seguro que querés desconectarte y dejar de compartir tu ubicación?")) {
+        if(confirm("¿Seguro que querés salir?")) {
             const user = JSON.parse(localStorage.getItem("caravana_user"));
-            if(user) {
-                db.ref(`grupos/${user.grupo}/ubicaciones/${user.patente}`).remove();
-            }
+            if(user) db.ref(`grupos/${user.grupo}/ubicaciones/${user.patente}`).remove();
             if(watchId) navigator.geolocation.clearWatch(watchId);
-            
             localStorage.removeItem("caravana_user");
             location.reload(); 
         }
     }
 
-    // --- 5. RASTREO EN VIVO (GPS) ---
     function iniciarRastreo(user) {
         if (navigator.geolocation) {
             watchId = navigator.geolocation.watchPosition(pos => {
-                const { latitude, longitude } = pos.coords;
-                
-                db.ref(`grupos/${user.grupo}/ubicaciones/${user.patente}`).set({ 
-                    lat: latitude, 
-                    lng: longitude, 
-                    nombre: user.nombre,
-                    vehiculo: user.vehiculo,
-                    telefono: user.telefono,
-                    timestamp: Date.now()
-                });
-                
-                if(!map.ubicacionInicialFijada) {
-                    map.setView([latitude, longitude], 14);
-                    map.ubicacionInicialFijada = true;
-                }
-            }, error => {
-                console.warn("Error GPS:", error);
-            }, { enableHighAccuracy: true, maximumAge: 10000 });
-        } else {
-            alert("Tu navegador no soporta GPS.");
+                db.ref(`grupos/${user.grupo}/ubicaciones/${user.patente}`).set({ lat: pos.coords.latitude, lng: pos.coords.longitude, nombre: user.nombre, vehiculo: user.vehiculo, telefono: user.telefono, timestamp: Date.now() });
+                if(!map.ubicacionInicialFijada) { map.setView([pos.coords.latitude, pos.coords.longitude], 14); map.ubicacionInicialFijada = true; }
+            }, err => console.warn(err), { enableHighAccuracy: true, maximumAge: 10000 });
         }
-
         db.ref(`grupos/${user.grupo}/ubicaciones`).on('value', snap => {
             const list = snap.val();
-            
-            for(let id in marcadores) {
-                if(!list || !list[id]) {
-                    map.removeLayer(marcadores[id]);
-                    delete marcadores[id];
-                }
-            }
-
-            for(let patente in list) {
-                const v = list[patente];
-                const infoHtml = `<div style="text-align:center;"><b>${v.nombre}</b><br>🚗 ${v.vehiculo}<br>🆔 ${patente}<br>📱 <a href="tel:${v.telefono}">${v.telefono}</a></div>`;
-                
-                if(marcadores[patente]) {
-                    marcadores[patente].setLatLng([v.lat, v.lng]);
-                    if(!marcadores[patente].isPopupOpen()) {
-                         marcadores[patente].getPopup().setContent(infoHtml);
-                    }
-                } else {
-                    marcadores[patente] = L.marker([v.lat, v.lng], {icon: carIcon}).addTo(map).bindPopup(infoHtml);
-                }
+            for(let id in marcadores) { if(!list || !list[id]) { map.removeLayer(marcadores[id]); delete marcadores[id]; } }
+            for(let p in list) {
+                const v = list[p];
+                const info = `<div style="text-align:center;"><b>${v.nombre}</b><br>🚗 ${v.vehiculo}<br>🆔 ${p}<br>📱 <a href="tel:${v.telefono}">${v.telefono}</a></div>`;
+                if(marcadores[p]) { marcadores[p].setLatLng([v.lat, v.lng]); if(!marcadores[p].isPopupOpen()) marcadores[p].getPopup().setContent(info); } 
+                else { marcadores[p] = L.marker([v.lat, v.lng], {icon: carIcon}).addTo(map).bindPopup(info); }
             }
         });
     }
 
-    // --- 6. CHAT DE CARAVANA ---
     function iniciarChat(user) {
         const chatBox = document.getElementById("chat-messages");
-        
         db.ref(`grupos/${user.grupo}/mensajes`).limitToLast(50).on('child_added', snap => {
             const msg = snap.val();
-            const isMe = msg.patente === user.patente;
-            
             const div = document.createElement("div");
-            div.className = `msg ${isMe ? 'msg-me' : 'msg-other'}`;
-            
-            if(msg.texto.includes("🚨")) {
-                div.style.backgroundColor = "#ffebee";
-                div.style.borderColor = "#ffcdd2";
-                div.style.color = "#c62828";
-            }
-
+            div.className = `msg ${msg.patente === user.patente ? 'msg-me' : 'msg-other'}`;
+            if(msg.texto.includes("🚨")) { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; }
             div.innerHTML = `<span class="msg-sender">${msg.nombre}</span>${msg.texto}`;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            chatBox.appendChild(div); chatBox.scrollTop = chatBox.scrollHeight;
         });
     }
 
     function enviarMensaje() {
         const input = document.getElementById("chat-input");
-        const texto = input.value.trim();
         const user = JSON.parse(localStorage.getItem("caravana_user"));
-        
-        if(texto !== "" && user) {
-            db.ref(`grupos/${user.grupo}/mensajes`).push({
-                nombre: user.nombre,
-                patente: user.patente,
-                texto: texto,
-                hora: Date.now()
-            });
+        if(input.value.trim() !== "" && user) {
+            db.ref(`grupos/${user.grupo}/mensajes`).push({ nombre: user.nombre, patente: user.patente, texto: input.value.trim(), hora: Date.now() });
             input.value = "";
         }
     }
 
     function enviarEmergencia() {
         const user = JSON.parse(localStorage.getItem("caravana_user"));
-        if(user && confirm("¿Enviar alerta de emergencia al grupo?")) {
-            db.ref(`grupos/${user.grupo}/mensajes`).push({
-                nombre: user.nombre,
-                patente: user.patente,
-                texto: "🚨 ¡NECESITO ASISTENCIA / PARADA DE EMERGENCIA! 🚨",
-                hora: Date.now()
-            });
+        if(user && confirm("¿Enviar alerta de emergencia?")) {
+            db.ref(`grupos/${user.grupo}/mensajes`).push({ nombre: user.nombre, patente: user.patente, texto: "🚨 ¡NECESITO ASISTENCIA! 🚨", hora: Date.now() });
             switchTab('tab-chat'); 
         }
     }
-
 </script>
 </body>
 </html>
